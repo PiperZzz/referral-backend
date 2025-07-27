@@ -2,6 +2,7 @@ package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.*;
 import org.moyi_tech.usermanagement.service.EmailService;
+import org.moyi_tech.usermanagement.service.TokenBlacklistService;
 import org.moyi_tech.usermanagement.service.UserService;
 import org.moyi_tech.usermanagement.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +37,9 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
+    
     /**
      * 用户注册
      */
@@ -187,6 +192,136 @@ public class AuthController {
             response.put("message", "未登录");
             
             return ResponseEntity.ok(response);
+        }
+    }
+
+
+    /**
+     * 用户登出
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        try {
+            // 获取JWT token
+            String headerAuth = request.getHeader("Authorization");
+            if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+                String jwt = headerAuth.substring(7);
+                
+                // 将token添加到黑名单
+                tokenBlacklistService.blacklistToken(jwt);
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "登出成功");
+                
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "未找到有效的登录token");
+                
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "登出失败: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 刷新token（如果需要延长会话）
+     */
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, Authentication authentication) {
+        try {
+            // 获取当前token
+            String headerAuth = request.getHeader("Authorization");
+            if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+                String oldToken = headerAuth.substring(7);
+                
+                // 检查token是否即将过期
+                if (jwtUtils.isTokenExpiringSoon(oldToken)) {
+                    // 生成新token
+                    String newToken = jwtUtils.generateJwtToken(authentication);
+                    
+                    // 将旧token加入黑名单
+                    tokenBlacklistService.blacklistToken(oldToken);
+                    
+                    // 获取用户信息
+                    UserResponseDto userInfo = userService.findUserByEmail(authentication.getName())
+                            .orElseThrow(() -> new RuntimeException("用户不存在"));
+
+                    LoginResponse loginResponse = new LoginResponse(newToken, userInfo);
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("message", "Token刷新成功");
+                    response.put("data", loginResponse);
+
+                    return ResponseEntity.ok(response);
+                } else {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", false);
+                    response.put("message", "Token还未到期，无需刷新");
+                    
+                    return ResponseEntity.badRequest().body(response);
+                }
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "未找到有效的token");
+                
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Token刷新失败: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 检查token状态
+     */
+    @GetMapping("/token-status")
+    public ResponseEntity<?> getTokenStatus(HttpServletRequest request) {
+        try {
+            String headerAuth = request.getHeader("Authorization");
+            if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+                String jwt = headerAuth.substring(7);
+                
+                boolean isValid = jwtUtils.validateJwtToken(jwt);
+                boolean isBlacklisted = tokenBlacklistService.isTokenBlacklisted(jwt);
+                boolean isExpiringSoon = jwtUtils.isTokenExpiringSoon(jwt);
+                long remainingTime = jwtUtils.getTokenRemainingTime(jwt);
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("isValid", isValid && !isBlacklisted);
+                response.put("isBlacklisted", isBlacklisted);
+                response.put("isExpiringSoon", isExpiringSoon);
+                response.put("remainingTimeMs", remainingTime);
+                response.put("remainingTimeSeconds", remainingTime / 1000);
+                
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "未找到token");
+                
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }
