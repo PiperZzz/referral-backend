@@ -1,0 +1,148 @@
+package org.moyi_tech.usermanagement.service;
+
+import org.moyi_tech.usermanagement.dto.UserRegistrationDto;
+import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.entity.Role;
+import org.moyi_tech.usermanagement.entity.RoleName;
+import org.moyi_tech.usermanagement.entity.User;
+import org.moyi_tech.usermanagement.entity.UserStatus;
+import org.moyi_tech.usermanagement.repository.RoleRepository;
+import org.moyi_tech.usermanagement.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    /**
+     * 用户注册
+     */
+    public UserResponseDto registerUser(UserRegistrationDto registrationDto) {
+        // 检查邮箱是否已存在
+        if (userRepository.existsByEmail(registrationDto.getEmail())) {
+            throw new RuntimeException("邮箱已被注册: " + registrationDto.getEmail());
+        }
+
+        // 创建新用户
+        User user = new User();
+        user.setEmail(registrationDto.getEmail());
+        user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
+        user.setWechatId(registrationDto.getWechatId());
+        user.setReferrerWechatId(registrationDto.getReferrerWechatId());
+        user.setStatus(UserStatus.INACTIVE); // 默认未激活状态
+
+        // 分配默认角色
+        Set<Role> roles = new HashSet<>();
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("默认用户角色不存在"));
+        roles.add(userRole);
+        user.setRoles(roles);
+
+        // 保存用户
+        User savedUser = userRepository.save(user);
+
+        return convertToResponseDto(savedUser);
+    }
+
+    /**
+     * 根据邮箱查找用户
+     */
+    public Optional<UserResponseDto> findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::convertToResponseDto);
+    }
+
+    /**
+     * 获取所有普通用户（管理员功能）
+     */
+    public List<UserResponseDto> getAllRegularUsers() {
+        return userRepository.findAllRegularUsers()
+                .stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 激活用户（管理员功能）
+     */
+    public UserResponseDto activateUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
+        
+        user.setStatus(UserStatus.ACTIVE);
+        User savedUser = userRepository.save(user);
+        
+        return convertToResponseDto(savedUser);
+    }
+
+    /**
+     * 暂停用户（管理员功能）
+     */
+    public UserResponseDto suspendUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
+        
+        user.setStatus(UserStatus.SUSPENDED);
+        User savedUser = userRepository.save(user);
+        
+        return convertToResponseDto(savedUser);
+    }
+
+    /**
+     * 更新用户微信信息
+     */
+    public UserResponseDto updateWechatInfo(String email, String wechatId, String referrerWechatId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
+        
+        if (wechatId != null) {
+            user.setWechatId(wechatId);
+        }
+        if (referrerWechatId != null) {
+            user.setReferrerWechatId(referrerWechatId);
+        }
+        
+        User savedUser = userRepository.save(user);
+        return convertToResponseDto(savedUser);
+    }
+
+    /**
+     * 转换为响应DTO
+     */
+    private UserResponseDto convertToResponseDto(User user) {
+        UserResponseDto dto = new UserResponseDto();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setWechatId(user.getWechatId());
+        dto.setReferrerWechatId(user.getReferrerWechatId());
+        dto.setStatus(user.getStatus());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+        
+        // 转换角色名称
+        Set<String> roleNames = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toSet());
+        dto.setRoles(roleNames);
+        
+        return dto;
+    }
+}
