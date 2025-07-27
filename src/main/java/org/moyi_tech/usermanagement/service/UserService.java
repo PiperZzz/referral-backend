@@ -123,6 +123,24 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return convertToResponseDto(savedUser);
     }
+    
+    /**
+     * 检查邮箱是否存在
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    /**
+     * 重置密码
+     */
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
+        
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 
     /**
      * 转换为响应DTO
@@ -144,5 +162,5 @@ public class UserService {
         dto.setRoles(roleNames);
         
         return dto;
-    }
+    }    
 }
