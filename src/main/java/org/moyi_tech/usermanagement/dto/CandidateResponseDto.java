@@ -51,4 +51,18 @@ public class CandidateResponseDto {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    // 编辑相关字段
+    private boolean canEdit;
+    private boolean canDelete;
+    private String statusDescription;
+
+    public boolean isCanEdit() { return canEdit; }
+    public void setCanEdit(boolean canEdit) { this.canEdit = canEdit; }
+
+    public boolean isCanDelete() { return canDelete; }
+    public void setCanDelete(boolean canDelete) { this.canDelete = canDelete; }
+
+    public String getStatusDescription() { return statusDescription; }
+    public void setStatusDescription(String statusDescription) { this.statusDescription = statusDescription; }
 }

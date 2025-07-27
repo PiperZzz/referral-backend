@@ -2,6 +2,7 @@ package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.CandidateCreateDto;
 import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
+import org.moyi_tech.usermanagement.dto.CandidateUpdateDto;
 import org.moyi_tech.usermanagement.entity.Candidate;
 import org.moyi_tech.usermanagement.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +10,10 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +134,138 @@ public class CandidateController {
                     .contentType(MediaType.parseMediaType(candidate.getResumeContentType()))
                     .contentLength(candidate.getResumeFile().length)
                     .body(resource);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 获取单个候选人详情
+     */
+    @GetMapping("/{candidateId}")
+    public ResponseEntity<?> getCandidateById(@PathVariable Long candidateId, Principal principal) {
+        try {
+            CandidateResponseDto candidate = candidateService.getCandidateById(candidateId, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("candidate", candidate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 更新候选人基本信息
+     */
+    @PutMapping("/{candidateId}")
+    public ResponseEntity<?> updateCandidate(
+            @PathVariable Long candidateId,
+            @RequestParam("candidateName") String candidateName,
+            @RequestParam("candidateWechat") String candidateWechat,
+            Principal principal) {
+        
+        try {
+            CandidateUpdateDto updateDto = new CandidateUpdateDto();
+            updateDto.setCandidateName(candidateName);
+            updateDto.setCandidateWechat(candidateWechat);
+
+            CandidateResponseDto candidate = candidateService.updateCandidate(
+                candidateId, updateDto, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "候选人信息更新成功");
+            response.put("candidate", candidate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 更新候选人简历
+     */
+    @PutMapping(value = "/{candidateId}/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateCandidateResume(
+            @PathVariable Long candidateId,
+            @RequestParam("resumeFile") MultipartFile resumeFile,
+            Principal principal) {
+        
+        try {
+            CandidateResponseDto candidate = candidateService.updateCandidateResume(
+                candidateId, resumeFile, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "候选人简历更新成功");
+            response.put("candidate", candidate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 删除候选人
+     */
+    @DeleteMapping("/{candidateId}")
+    public ResponseEntity<?> deleteCandidate(@PathVariable Long candidateId, Principal principal) {
+        try {
+            candidateService.deleteCandidate(candidateId, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "候选人删除成功");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 检查是否可以编辑候选人
+     */
+    @GetMapping("/{candidateId}/editable")
+    public ResponseEntity<?> checkEditPermission(@PathVariable Long candidateId, Principal principal) {
+        try {
+            boolean canEdit = candidateService.canEditCandidate(candidateId, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("canEdit", canEdit);
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
