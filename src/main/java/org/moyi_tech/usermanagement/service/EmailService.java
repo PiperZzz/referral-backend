@@ -27,4 +27,14 @@ public class EmailService {
 
         emailSender.send(message);
     }
+
+    public void sendSimpleEmail(String to, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("noreply@example.com");
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+
+        emailSender.send(message);
+    }
 }

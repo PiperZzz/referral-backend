@@ -62,6 +62,9 @@ public class SecurityConfig {
                 // 管理员端点
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 
+                // 用户候选人管理端点 - 需要认证
+                .requestMatchers("/api/candidates/**").authenticated()
+                
                 // 其他端点需要认证
                 .anyRequest().authenticated()
             );

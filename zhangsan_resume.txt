@@ -1,0 +1,5 @@
+这是张三的简历内容
+姓名：张三
+经验：5年Java开发经验
+技能：Spring Boot, React, MySQL
+联系方式：zhangsan@email.com
