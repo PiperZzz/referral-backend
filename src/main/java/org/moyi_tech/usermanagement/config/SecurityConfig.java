@@ -59,11 +59,20 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 
+                // Help 页面端点 - 需要认证
+                .requestMatchers("/api/help/**").authenticated()
+                
                 // 管理员端点
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 
                 // 用户候选人管理端点 - 需要认证
                 .requestMatchers("/api/candidates/**").authenticated()
+                
+                // 用户相关端点 - 需要认证
+                .requestMatchers("/api/users/**").authenticated()
+                
+                // 会话相关端点 - 需要认证
+                .requestMatchers("/api/session/**").authenticated()
                 
                 // 其他端点需要认证
                 .anyRequest().authenticated()

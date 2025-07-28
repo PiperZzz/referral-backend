@@ -13,10 +13,16 @@ public class RoleInitializationService implements CommandLineRunner {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private HelpService helpService;
+
     @Override
     public void run(String... args) throws Exception {
         // 初始化基础角色
         initializeRoles();
+        
+        // 初始化默认管理员
+        initializeDefaultAdmins();
     }
 
     private void initializeRoles() {
@@ -33,5 +39,13 @@ public class RoleInitializationService implements CommandLineRunner {
             roleRepository.save(adminRole);
             System.out.println("Created ROLE_ADMIN");
         }
+    }
+
+    /**
+     * 初始化默认管理员
+     */
+    private void initializeDefaultAdmins() {
+        helpService.initializeDefaultAdmins();
+        System.out.println("Default admins initialized");
     }
 }
