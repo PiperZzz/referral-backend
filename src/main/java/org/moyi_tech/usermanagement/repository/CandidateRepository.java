@@ -46,4 +46,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     
     // 获取最新的候选人（用于管理员查看）
     List<Candidate> findTop10ByOrderByCreatedAtDesc();
+
+    // 统计用户在指定状态列表中的候选人数量
+    long countByReferredByAndStatusIn(User referredBy, List<CandidateStatus> statuses);
 }
