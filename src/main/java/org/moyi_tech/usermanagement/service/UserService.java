@@ -163,4 +163,39 @@ public class UserService {
         
         return dto;
     }    
+
+    /**
+     * 获取用户的主要角色（用于登录响应）
+     */
+    public String getUserPrimaryRole(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
+
+        // 按优先级确定主要角色：Master > Admin > User
+        if (user.getRoles().stream().anyMatch(role -> role.getName() == RoleName.ROLE_MASTER)) {
+            return "MASTER";
+        } else if (user.getRoles().stream().anyMatch(role -> role.getName() == RoleName.ROLE_ADMIN)) {
+            return "ADMIN";
+        } else {
+            return "USER";
+        }
+    }
+
+    /**
+     * 检查用户是否具有指定角色
+     */
+    public boolean userHasRole(String email, String roleName) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
+        
+        RoleName targetRole;
+        try {
+            targetRole = RoleName.valueOf("ROLE_" + roleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        
+        return user.getRoles().stream()
+                .anyMatch(role -> role.getName() == targetRole);
+    }
 }

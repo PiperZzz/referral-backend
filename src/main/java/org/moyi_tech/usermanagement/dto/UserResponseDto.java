@@ -42,4 +42,14 @@ public class UserResponseDto {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public void setUsername(Object username) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setUsername'");
+    }
+
+    public void setPhoneNumber(Object phoneNumber) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPhoneNumber'");
+    }
 }

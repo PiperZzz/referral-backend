@@ -1,5 +1,6 @@
 package org.moyi_tech.usermanagement.repository;
 
+import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.entity.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,4 +40,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 根据邮箱模糊搜索
     @Query("SELECT u FROM User u WHERE u.email LIKE %:email%")
     List<User> findByEmailContaining(@Param("email") String email);
+
+    // 根据角色查找用户
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    List<User> findByRoleName(@Param("roleName") RoleName roleName);
+    
+    // 统计指定角色的用户数量
+    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    long countByRoleName(@Param("roleName") RoleName roleName);
+    
+    // 查找所有管理员
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_ADMIN'")
+    List<User> findAllAdmins();
+    
+    // 查找Master用户
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_MASTER'")
+    Optional<User> findMaster();
 }

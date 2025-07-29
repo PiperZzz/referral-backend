@@ -70,6 +70,9 @@ public class SecurityConfig {
                 
                 // 用户相关端点 - 需要认证
                 .requestMatchers("/api/users/**").authenticated()
+
+                .requestMatchers("/api/master/**").hasRole("MASTER")
+                .requestMatchers("/api/master/reset-password").permitAll() // Master重置密码不需要认证
                 
                 // 会话相关端点 - 需要认证
                 .requestMatchers("/api/session/**").authenticated()

@@ -17,7 +17,7 @@ public class EmailService {
         message.setTo(to);
         message.setSubject("密码重置请求");
         
-        String resetUrl = "http://localhost:3000/reset-password?token=" + resetToken;
+        String resetUrl = "https://referral.moyi-tech.org/reset-password?token=" + resetToken;
         message.setText("您好，\n\n" +
                 "您请求重置密码。请点击以下链接重置您的密码：\n\n" +
                 resetUrl + "\n\n" +

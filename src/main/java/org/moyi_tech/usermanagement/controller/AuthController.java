@@ -1,10 +1,13 @@
 package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.*;
+import org.moyi_tech.usermanagement.entity.Role;
+import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.service.EmailService;
 import org.moyi_tech.usermanagement.service.TokenBlacklistService;
 import org.moyi_tech.usermanagement.service.UserService;
 import org.moyi_tech.usermanagement.util.JwtUtils;
+import org.moyi_tech.usermanagement.util.RoleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -82,7 +86,12 @@ public class AuthController {
             UserResponseDto userInfo = userService.findUserByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
-            LoginResponse loginResponse = new LoginResponse(jwt, userInfo);
+            // 确定主要角色和默认路由
+            String primaryRole = RoleUtils.determinePrimaryRole(userInfo.getRoles());
+            String defaultRoute = RoleUtils.getDefaultRouteForRole(primaryRole);
+
+            // 更新 LoginResponse 构造
+            LoginResponse loginResponse = new LoginResponse(jwt, userInfo, primaryRole, defaultRoute);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
