@@ -1,9 +1,9 @@
 package org.moyi_tech.usermanagement.entity;
 
 public enum RoleName {
-    ROLE_USER("普通用户"),
-    ROLE_ADMIN("管理员"),
-    ROLE_MASTER("超级管理员");
+    ROLE_USER("User"),
+    ROLE_ADMIN("Admin"),
+    ROLE_MASTER("Master");
 
     private final String description;
 
