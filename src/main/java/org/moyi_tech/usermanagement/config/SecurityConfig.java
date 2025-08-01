@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -20,13 +21,16 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthTokenFilter jwtAuthTokenFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService,
                          JwtAuthenticationEntryPoint unauthorizedHandler,
-                         JwtAuthTokenFilter jwtAuthTokenFilter) {
+                         JwtAuthTokenFilter jwtAuthTokenFilter,
+                         CorsConfigurationSource corsConfigurationSource) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
         this.jwtAuthTokenFilter = jwtAuthTokenFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
@@ -50,14 +54,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.disable())
+            // 启用CORS配置
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
+            // 禁用CSRF（对于API不需要）
             .csrf(csrf -> csrf.disable())
+            // 异常处理
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            // 无状态会话管理
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // 请求授权配置
             .authorizeHttpRequests(authz -> authz
-                // 公开端点
+                // 公开端点 - 不需要认证
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/error").permitAll()
+                
+                // OPTIONS请求允许通过（用于CORS预检请求）
+                .requestMatchers("OPTIONS", "/**").permitAll()
                 
                 // Help 页面端点 - 需要认证
                 .requestMatchers("/api/help/**").authenticated()
