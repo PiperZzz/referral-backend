@@ -122,27 +122,4 @@ public class MasterController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-    /**
-     * Master首次重置密码
-     */
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
-        try {
-            masterService.resetMasterPassword(passwordResetRequest.getToken(), passwordResetRequest.getNewPassword());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Master密码重置成功");
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
 }

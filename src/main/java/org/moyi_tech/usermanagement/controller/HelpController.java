@@ -41,29 +41,4 @@ public class HelpController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-    /**
-     * Get complete help information
-     * For Feature 1.6 - Help Overlay content
-     */
-    @GetMapping("/info")
-    public ResponseEntity<?> getHelpInfo() {
-        try {
-            Map<String, Object> helpInfo = adminInfoService.getHelpInfo();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("helpInfo", helpInfo);
-            response.put("message", "Help information retrieved successfully");
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "Failed to retrieve help information: " + e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
 }
