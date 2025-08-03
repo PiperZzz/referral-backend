@@ -14,6 +14,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
+
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -109,42 +111,6 @@ public class CandidateController {
     }
 
     /**
-     * 下载候选人简历
-     */
-    @GetMapping("/{candidateId}/resume")
-    public ResponseEntity<?> downloadResume(@PathVariable Long candidateId, Principal principal) {
-        try {
-            Candidate candidate = candidateService.getCandidateWithResume(candidateId);
-
-            // 检查权限：只有推荐人和管理员可以下载
-            // 这里简化处理，后续可以添加更复杂的权限检查
-
-            if (candidate.getResumeFile() == null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", false);
-                response.put("message", "该候选人没有上传简历");
-                return ResponseEntity.badRequest().body(response);
-            }
-
-            ByteArrayResource resource = new ByteArrayResource(candidate.getResumeFile());
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, 
-                           "attachment; filename=\"" + candidate.getResumeFilename() + "\"")
-                    .contentType(MediaType.parseMediaType(candidate.getResumeContentType()))
-                    .contentLength(candidate.getResumeFile().length)
-                    .body(resource);
-
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
      * 获取单个候选人详情
      */
     @GetMapping("/{candidateId}")
@@ -202,35 +168,6 @@ public class CandidateController {
     }
 
     /**
-     * 更新候选人简历
-     */
-    @PutMapping(value = "/{candidateId}/resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateCandidateResume(
-            @PathVariable Long candidateId,
-            @RequestParam("resumeFile") MultipartFile resumeFile,
-            Principal principal) {
-        
-        try {
-            CandidateResponseDto candidate = candidateService.updateCandidateResume(
-                candidateId, resumeFile, principal.getName());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "候选人简历更新成功");
-            response.put("candidate", candidate);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
      * 删除候选人
      */
     @DeleteMapping("/{candidateId}")
@@ -271,6 +208,182 @@ public class CandidateController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Download candidate resume
+     * For Feature 1.4.4 and admin resume review
+     */
+    @GetMapping("/{candidateId}/resume/download")
+    public ResponseEntity<?> downloadResume(@PathVariable Long candidateId, Principal principal) {
+        try {
+            // Get candidate with resume
+            Candidate candidate = candidateService.getCandidateWithResume(candidateId);
+            
+            // Check permissions: only referrer and admins can download
+            String userEmail = principal.getName();
+            if (!candidateService.canViewCandidateResume(candidateId, userEmail)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "No permission to download this resume");
+                return ResponseEntity.status(403).body(response);
+            }
+
+            if (candidate.getResumeFile() == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "No resume file found for this candidate");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            ByteArrayResource resource = new ByteArrayResource(candidate.getResumeFile());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, 
+                           "attachment; filename=\"" + candidate.getResumeFilename() + "\"")
+                    .contentType(MediaType.parseMediaType(candidate.getResumeContentType()))
+                    .contentLength(candidate.getResumeFile().length)
+                    .body(resource);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to download resume: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Get candidate resume info (filename, upload date)
+     * For Feature 1.4.4 - Resume field shows filename and upload date
+     */
+    @GetMapping("/{candidateId}/resume/info")
+    public ResponseEntity<?> getResumeInfo(@PathVariable Long candidateId, Principal principal) {
+        try {
+            Map<String, Object> resumeInfo = candidateService.getCandidateResumeInfo(candidateId, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("resumeInfo", resumeInfo);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to get resume info: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Check if user can edit candidate
+     * For frontend permission checks
+     */
+    @GetMapping("/{candidateId}/permissions")
+    public ResponseEntity<?> getCandidatePermissions(@PathVariable Long candidateId, Principal principal) {
+        try {
+            Map<String, Boolean> permissions = candidateService.getCandidatePermissions(candidateId, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("permissions", permissions);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to get candidate permissions: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Update candidate basic information
+     * For Feature 1.4.3 - Edit candidate name and WeChat
+     */
+    @PutMapping("/{candidateId}")
+    public ResponseEntity<?> updateCandidate(
+            @PathVariable Long candidateId,
+            @Valid @RequestBody CandidateUpdateDto updateDto,
+            Principal principal) {
+        
+        try {
+            CandidateResponseDto candidate = candidateService.updateCandidate(
+                candidateId, updateDto, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Candidate updated successfully");
+            response.put("candidate", candidate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to update candidate: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Update candidate resume only
+     * For Feature 1.4.3 - Reupload resume
+     */
+    @PutMapping("/{candidateId}/resume")
+    public ResponseEntity<?> updateCandidateResume(
+            @PathVariable Long candidateId,
+            @RequestParam("resumeFile") MultipartFile resumeFile,
+            Principal principal) {
+        
+        try {
+            CandidateResponseDto candidate = candidateService.updateCandidateResume(
+                candidateId, resumeFile, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Resume updated successfully");
+            response.put("candidate", candidate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to update resume: " + e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Get candidate edit form data
+     * For Feature 1.4.3 - Pre-populate edit form
+     */
+    @GetMapping("/{candidateId}/edit")
+    public ResponseEntity<?> getCandidateForEdit(@PathVariable Long candidateId, Principal principal) {
+        try {
+            CandidateResponseDto candidate = candidateService.getCandidateForEdit(candidateId, principal.getName());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("candidate", candidate);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Failed to get candidate for edit: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
         }

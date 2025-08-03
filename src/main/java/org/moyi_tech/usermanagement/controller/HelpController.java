@@ -1,13 +1,10 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.AdminInfoResponseDto;
-import org.moyi_tech.usermanagement.dto.HelpInfoDto;
 import org.moyi_tech.usermanagement.service.HelpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,49 +17,51 @@ public class HelpController {
     private HelpService helpService;
 
     /**
-     * 获取完整帮助信息（包含管理员列表）
+     * Get admin WeChat information for Help overlay
+     * For Feature 1.6 - Help Overlay
      */
-    @GetMapping("/info")
-    public ResponseEntity<?> getHelpInfo(Principal principal) {
+    @GetMapping("/admins")
+    public ResponseEntity<?> getAdminWeChatInfo() {
         try {
-            HelpInfoDto helpInfo = helpService.getHelpInfo();
+            List<Map<String, String>> adminInfo = helpService.getAdminWeChatInfo();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("helpInfo", helpInfo);
-            response.put("message", "获取帮助信息成功");
+            response.put("admins", adminInfo);
+            response.put("totalAdmins", adminInfo.size());
+            response.put("message", "Admin information retrieved successfully");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "获取帮助信息失败: " + e.getMessage());
+            response.put("message", "Failed to retrieve admin information: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
         }
     }
 
     /**
-     * 获取管理员列表
+     * Get complete help information
+     * For Feature 1.6 - Help Overlay content
      */
-    @GetMapping("/admins")
-    public ResponseEntity<?> getAdminList() {
+    @GetMapping("/info")
+    public ResponseEntity<?> getHelpInfo() {
         try {
-            List<AdminInfoResponseDto> adminList = helpService.getAllActiveAdmins();
+            Map<String, Object> helpInfo = helpService.getHelpInfo();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("admins", adminList);
-            response.put("totalAdmins", adminList.size());
-            response.put("message", "获取管理员列表成功");
+            response.put("helpInfo", helpInfo);
+            response.put("message", "Help information retrieved successfully");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "获取管理员列表失败: " + e.getMessage());
+            response.put("message", "Failed to retrieve help information: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
         }

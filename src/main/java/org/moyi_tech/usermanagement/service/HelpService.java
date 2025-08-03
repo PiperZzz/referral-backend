@@ -2,14 +2,17 @@ package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.dto.AdminInfoDto;
 import org.moyi_tech.usermanagement.dto.AdminInfoResponseDto;
-import org.moyi_tech.usermanagement.dto.HelpInfoDto;
 import org.moyi_tech.usermanagement.entity.AdminInfo;
+import org.moyi_tech.usermanagement.entity.RoleName;
+import org.moyi_tech.usermanagement.entity.User;
+import org.moyi_tech.usermanagement.entity.UserStatus;
 import org.moyi_tech.usermanagement.repository.AdminInfoRepository;
+import org.moyi_tech.usermanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,24 +22,89 @@ public class HelpService {
     @Autowired
     private AdminInfoRepository adminInfoRepository;
 
-    /**
-     * 获取完整的帮助信息（包含管理员列表）
-     */
-    public HelpInfoDto getHelpInfo() {
-        HelpInfoDto helpInfo = new HelpInfoDto();
-        
-        // 获取活跃的管理员列表
-        List<AdminInfoResponseDto> adminList = getAllActiveAdmins();
-        
-        helpInfo.setSupportMessage("遇到问题？别担心！以下是我们的管理员团队，请选择合适的管理员联系：");
-        helpInfo.setBusinessHours("7x24小时在线服务");
-        helpInfo.setAdminList(adminList);
+    @Autowired
+    private UserRepository userRepository;
 
-        return helpInfo;
+    /**
+     * Get admin WeChat information for Help overlay (Feature 1.6.2)
+     * This method prioritizes AdminInfo entities, but falls back to User entities with ADMIN role
+     */
+    public List<Map<String, String>> getAdminWeChatInfo() {
+        List<Map<String, String>> adminInfo = new ArrayList<>();
+        
+        // First, try to get from AdminInfo entities
+        List<AdminInfo> adminInfoList = adminInfoRepository.findAllActiveAdminsOrdered();
+        
+        if (!adminInfoList.isEmpty()) {
+            for (AdminInfo admin : adminInfoList) {
+                if (admin.getWechatId() != null && !admin.getWechatId().trim().isEmpty()) {
+                    Map<String, String> info = new HashMap<>();
+                    info.put("name", admin.getAdminName());
+                    info.put("wechatId", admin.getWechatId());
+                    info.put("email", admin.getEmail());
+                    info.put("department", admin.getDepartment());
+                    info.put("position", admin.getPosition());
+                    adminInfo.add(info);
+                }
+            }
+        }
+        
+        // If no AdminInfo found, fall back to User entities with ADMIN role
+        if (adminInfo.isEmpty()) {
+            List<User> adminUsers = userRepository.findByRoleName(RoleName.ROLE_ADMIN)
+                    .stream()
+                    .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+                    .filter(user -> user.getWechatId() != null && !user.getWechatId().trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            for (User admin : adminUsers) {
+                Map<String, String> info = new HashMap<>();
+                info.put("name", admin.getEmail().split("@")[0]); // Use email prefix as name
+                info.put("wechatId", admin.getWechatId());
+                info.put("email", admin.getEmail());
+                info.put("department", "System");
+                info.put("position", "Administrator");
+                adminInfo.add(info);
+            }
+        }
+
+        // If still no admins found, add default admin info
+        if (adminInfo.isEmpty()) {
+            Map<String, String> defaultAdmin = new HashMap<>();
+            defaultAdmin.put("name", "System Admin");
+            defaultAdmin.put("wechatId", "admin-support-2025");
+            defaultAdmin.put("email", "admin@moyi-tech.org");
+            defaultAdmin.put("department", "Support");
+            defaultAdmin.put("position", "System Administrator");
+            adminInfo.add(defaultAdmin);
+        }
+
+        return adminInfo;
     }
 
     /**
-     * 获取所有活跃的管理员列表
+     * Get complete help information (Feature 1.6)
+     */
+    public Map<String, Object> getHelpInfo() {
+        Map<String, Object> helpInfo = new HashMap<>();
+        
+        // Get admin information
+        List<Map<String, String>> adminInfo = getAdminWeChatInfo();
+        
+        // Build help content
+        helpInfo.put("title", "Need Help?");
+        helpInfo.put("message", "Contact our administrators via WeChat for assistance:");
+        helpInfo.put("admins", adminInfo);
+        helpInfo.put("businessHours", "Available 24/7");
+        helpInfo.put("supportEmail", "support@moyi-tech.org");
+        
+        return helpInfo;
+    }
+
+    // ===== AdminInfo Management Methods (for AdminManagementController) =====
+
+    /**
+     * Get all active admin info
      */
     public List<AdminInfoResponseDto> getAllActiveAdmins() {
         return adminInfoRepository.findAllActiveAdminsOrdered()
@@ -46,7 +114,7 @@ public class HelpService {
     }
 
     /**
-     * 获取所有管理员列表（管理员功能）
+     * Get all admin info (including inactive)
      */
     public List<AdminInfoResponseDto> getAllAdmins() {
         return adminInfoRepository.findAllAdminsOrdered()
@@ -56,19 +124,19 @@ public class HelpService {
     }
 
     /**
-     * 添加新管理员
+     * Add new admin info
      */
     public AdminInfoResponseDto addAdmin(AdminInfoDto adminDto) {
-        // 检查微信号是否已存在
+        // Check if WeChat ID already exists
         if (adminInfoRepository.existsByWechatId(adminDto.getWechatId())) {
-            throw new RuntimeException("微信号已存在: " + adminDto.getWechatId());
+            throw new RuntimeException("WeChat ID already exists: " + adminDto.getWechatId());
         }
 
-        // 检查邮箱是否已存在（如果提供了邮箱）
+        // Check if email already exists (if provided)
         if (adminDto.getEmail() != null && 
             !adminDto.getEmail().trim().isEmpty() &&
             adminInfoRepository.existsByEmail(adminDto.getEmail())) {
-            throw new RuntimeException("邮箱已存在: " + adminDto.getEmail());
+            throw new RuntimeException("Email already exists: " + adminDto.getEmail());
         }
 
         AdminInfo adminInfo = convertToEntity(adminDto);
@@ -77,47 +145,47 @@ public class HelpService {
     }
 
     /**
-     * 更新管理员信息
+     * Update admin info
      */
     public AdminInfoResponseDto updateAdmin(Long adminId, AdminInfoDto adminDto) {
         AdminInfo adminInfo = adminInfoRepository.findById(adminId)
-                .orElseThrow(() -> new RuntimeException("管理员不存在: " + adminId));
+                .orElseThrow(() -> new RuntimeException("Admin not found: " + adminId));
 
-        // 检查微信号唯一性（如果有变更）
+        // Check WeChat ID uniqueness (if changed)
         if (!adminInfo.getWechatId().equals(adminDto.getWechatId()) &&
             adminInfoRepository.existsByWechatId(adminDto.getWechatId())) {
-            throw new RuntimeException("微信号已存在: " + adminDto.getWechatId());
+            throw new RuntimeException("WeChat ID already exists: " + adminDto.getWechatId());
         }
 
-        // 检查邮箱唯一性（如果有变更）
+        // Check email uniqueness (if changed)
         if (adminDto.getEmail() != null && 
             !adminDto.getEmail().equals(adminInfo.getEmail()) &&
             adminInfoRepository.existsByEmail(adminDto.getEmail())) {
-            throw new RuntimeException("邮箱已存在: " + adminDto.getEmail());
+            throw new RuntimeException("Email already exists: " + adminDto.getEmail());
         }
 
-        // 更新管理员信息
+        // Update admin info
         updateEntityFromDto(adminInfo, adminDto);
         AdminInfo savedAdmin = adminInfoRepository.save(adminInfo);
         return convertToResponseDto(savedAdmin);
     }
 
     /**
-     * 删除管理员
+     * Delete admin info
      */
     public void deleteAdmin(Long adminId) {
         if (!adminInfoRepository.existsById(adminId)) {
-            throw new RuntimeException("管理员不存在: " + adminId);
+            throw new RuntimeException("Admin not found: " + adminId);
         }
         adminInfoRepository.deleteById(adminId);
     }
 
     /**
-     * 切换管理员状态
+     * Toggle admin status
      */
     public AdminInfoResponseDto toggleAdminStatus(Long adminId) {
         AdminInfo adminInfo = adminInfoRepository.findById(adminId)
-                .orElseThrow(() -> new RuntimeException("管理员不存在: " + adminId));
+                .orElseThrow(() -> new RuntimeException("Admin not found: " + adminId));
 
         adminInfo.setIsActive(!adminInfo.getIsActive());
         AdminInfo savedAdmin = adminInfoRepository.save(adminInfo);
@@ -125,94 +193,94 @@ public class HelpService {
     }
 
     /**
-     * 初始化默认管理员
+     * Initialize default admins
      */
     public void initializeDefaultAdmins() {
         if (adminInfoRepository.count() == 0) {
-            // 创建系统管理员
+            // Create system admin
             AdminInfo systemAdmin = new AdminInfo();
-            systemAdmin.setAdminName("系统管理员");
-            systemAdmin.setWechatId("system_admin_2025");
-            systemAdmin.setEmail("admin@company.com");
+            systemAdmin.setAdminName("System Administrator");
+            systemAdmin.setWechatId("system-admin-2025");
+            systemAdmin.setEmail("admin@moyi-tech.org");
             systemAdmin.setPhoneNumber("400-000-0001");
-            systemAdmin.setDepartment("技术部");
-            systemAdmin.setPosition("系统管理员");
-            systemAdmin.setDescription("负责系统维护和用户支持");
+            systemAdmin.setDepartment("Technology");
+            systemAdmin.setPosition("System Administrator");
+            systemAdmin.setDescription("Responsible for system maintenance and user support");
             systemAdmin.setIsActive(true);
             systemAdmin.setDisplayOrder(1);
             adminInfoRepository.save(systemAdmin);
 
-            // 创建客服管理员
+            // Create customer service admin
             AdminInfo serviceAdmin = new AdminInfo();
-            serviceAdmin.setAdminName("客服小助手");
-            serviceAdmin.setWechatId("service_helper_2025");
-            serviceAdmin.setEmail("service@company.com");
+            serviceAdmin.setAdminName("Customer Service");
+            serviceAdmin.setWechatId("service-helper-2025");
+            serviceAdmin.setEmail("service@moyi-tech.org");
             serviceAdmin.setPhoneNumber("400-000-0002");
-            serviceAdmin.setDepartment("客服部");
-            serviceAdmin.setPosition("客服专员");
-            serviceAdmin.setDescription("负责用户咨询和问题解答");
+            serviceAdmin.setDepartment("Customer Service");
+            serviceAdmin.setPosition("Customer Service Specialist");
+            serviceAdmin.setDescription("Responsible for user inquiries and problem resolution");
             serviceAdmin.setIsActive(true);
             serviceAdmin.setDisplayOrder(2);
             adminInfoRepository.save(serviceAdmin);
 
-            // 创建业务管理员
-            AdminInfo businessAdmin = new AdminInfo();
-            businessAdmin.setAdminName("业务经理");
-            businessAdmin.setWechatId("business_manager_2025");
-            businessAdmin.setEmail("business@company.com");
-            businessAdmin.setPhoneNumber("400-000-0003");
-            businessAdmin.setDepartment("业务部");
-            businessAdmin.setPosition("业务经理");
-            businessAdmin.setDescription("负责业务推广和合作洽谈");
-            businessAdmin.setIsActive(true);
-            businessAdmin.setDisplayOrder(3);
-            adminInfoRepository.save(businessAdmin);
-
-            System.out.println("Created default admins");
+            System.out.println("Default AdminInfo entities created");
+        } else {
+            System.out.println("AdminInfo entities already exist, skipping initialization");
         }
     }
 
+    // ===== Helper Methods =====
+
     /**
-     * 转换 DTO 为实体
+     * Convert AdminInfo entity to response DTO
+     */
+    private AdminInfoResponseDto convertToResponseDto(AdminInfo adminInfo) {
+        AdminInfoResponseDto dto = new AdminInfoResponseDto();
+        dto.setId(adminInfo.getId());
+        dto.setAdminName(adminInfo.getAdminName());
+        dto.setWechatId(adminInfo.getWechatId());
+        dto.setEmail(adminInfo.getEmail());
+        dto.setPhoneNumber(adminInfo.getPhoneNumber());
+        dto.setDepartment(adminInfo.getDepartment());
+        dto.setPosition(adminInfo.getPosition());
+        dto.setDescription(adminInfo.getDescription());
+        dto.setIsActive(adminInfo.getIsActive());
+        dto.setDisplayOrder(adminInfo.getDisplayOrder());
+        dto.setCreatedAt(adminInfo.getCreatedAt());
+        dto.setUpdatedAt(adminInfo.getUpdatedAt());
+        return dto;
+    }
+
+    /**
+     * Convert DTO to AdminInfo entity
      */
     private AdminInfo convertToEntity(AdminInfoDto dto) {
-        AdminInfo entity = new AdminInfo();
-        updateEntityFromDto(entity, dto);
-        return entity;
+        AdminInfo adminInfo = new AdminInfo();
+        adminInfo.setAdminName(dto.getAdminName());
+        adminInfo.setWechatId(dto.getWechatId());
+        adminInfo.setEmail(dto.getEmail());
+        adminInfo.setPhoneNumber(dto.getPhoneNumber());
+        adminInfo.setDepartment(dto.getDepartment());
+        adminInfo.setPosition(dto.getPosition());
+        adminInfo.setDescription(dto.getDescription());
+        adminInfo.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+        adminInfo.setDisplayOrder(dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 999);
+        return adminInfo;
     }
 
     /**
-     * 用 DTO 更新实体
+     * Update entity from DTO
      */
-    private void updateEntityFromDto(AdminInfo entity, AdminInfoDto dto) {
-        entity.setAdminName(dto.getAdminName());
-        entity.setWechatId(dto.getWechatId());
-        entity.setEmail(dto.getEmail());
-        entity.setPhoneNumber(dto.getPhoneNumber());
-        entity.setDepartment(dto.getDepartment());
-        entity.setPosition(dto.getPosition());
-        entity.setDescription(dto.getDescription());
-        entity.setIsActive(dto.getIsActive());
-        entity.setDisplayOrder(dto.getDisplayOrder());
-    }
-
-    /**
-     * 转换为响应DTO
-     */
-    private AdminInfoResponseDto convertToResponseDto(AdminInfo entity) {
-        AdminInfoResponseDto dto = new AdminInfoResponseDto();
-        dto.setId(entity.getId());
-        dto.setAdminName(entity.getAdminName());
-        dto.setWechatId(entity.getWechatId());
-        dto.setEmail(entity.getEmail());
-        dto.setPhoneNumber(entity.getPhoneNumber());
-        dto.setDepartment(entity.getDepartment());
-        dto.setPosition(entity.getPosition());
-        dto.setDescription(entity.getDescription());
-        dto.setIsActive(entity.getIsActive());
-        dto.setDisplayOrder(entity.getDisplayOrder());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-        return dto;
+    private void updateEntityFromDto(AdminInfo adminInfo, AdminInfoDto dto) {
+        adminInfo.setAdminName(dto.getAdminName());
+        adminInfo.setWechatId(dto.getWechatId());
+        adminInfo.setEmail(dto.getEmail());
+        adminInfo.setPhoneNumber(dto.getPhoneNumber());
+        adminInfo.setDepartment(dto.getDepartment());
+        adminInfo.setPosition(dto.getPosition());
+        adminInfo.setDescription(dto.getDescription());
+        if (dto.getDisplayOrder() != null) {
+            adminInfo.setDisplayOrder(dto.getDisplayOrder());
+        }
     }
 }
