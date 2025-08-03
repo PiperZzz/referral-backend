@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.MasterPasswordResetDto;
+import org.moyi_tech.usermanagement.dto.PasswordResetRequest;
 import org.moyi_tech.usermanagement.dto.UserRoleUpdateDto;
 import org.moyi_tech.usermanagement.dto.UserResponseDto;
 import org.moyi_tech.usermanagement.service.MasterService;
@@ -127,9 +127,9 @@ public class MasterController {
      * Master首次重置密码
      */
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestBody MasterPasswordResetDto resetDto) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         try {
-            masterService.resetMasterPassword(resetDto.getToken(), resetDto.getNewPassword());
+            masterService.resetMasterPassword(passwordResetRequest.getToken(), passwordResetRequest.getNewPassword());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

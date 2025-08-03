@@ -149,7 +149,7 @@ public class AuthController {
      * 重置密码
      */
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@Valid @RequestBody NewPasswordRequest request) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody PasswordResetRequest request) {
         try {
             // 验证token
             if (!jwtUtils.validateJwtToken(request.getToken())) {
