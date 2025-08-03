@@ -1,4 +1,4 @@
-package org.moyi_tech.usermanagement.config;
+package org.moyi_tech.usermanagement.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
