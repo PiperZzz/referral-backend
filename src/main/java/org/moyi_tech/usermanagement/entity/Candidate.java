@@ -16,11 +16,11 @@ public class Candidate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "候选人姓名不能为空")
+    @NotBlank(message = "Candidate name cannot be empty")
     @Column(name = "candidate_name", nullable = false)
     private String candidateName;
 
-    @NotBlank(message = "候选人微信不能为空")
+    @NotBlank(message = "Candidate WeChat cannot be empty")
     @Column(name = "candidate_wechat", unique = true, nullable = false)
     private String candidateWechat;
 
@@ -36,7 +36,7 @@ public class Candidate {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CandidateStatus status = CandidateStatus.PENDING;
+    private CandidateStatus status = CandidateStatus.SCREENING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "referred_by_user_id", nullable = false)
@@ -53,7 +53,7 @@ public class Candidate {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 构造函数
+    // Constructors
     public Candidate() {}
 
     public Candidate(String candidateName, String candidateWechat, User referredBy) {

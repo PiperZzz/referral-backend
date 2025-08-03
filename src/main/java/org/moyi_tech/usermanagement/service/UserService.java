@@ -100,7 +100,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
         
-        user.setStatus(UserStatus.SUSPENDED);
+        user.setStatus(UserStatus.INACTIVE);
         User savedUser = userRepository.save(user);
         
         return convertToResponseDto(savedUser);

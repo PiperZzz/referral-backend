@@ -51,7 +51,7 @@ public class CandidateService {
         candidate.setCandidateName(createDto.getCandidateName());
         candidate.setCandidateWechat(createDto.getCandidateWechat());
         candidate.setReferredBy(referredBy);
-        candidate.setStatus(CandidateStatus.PENDING);
+        candidate.setStatus(CandidateStatus.SCREENING); // 默认状态为筛选中
 
         // 处理简历文件
         if (resumeFile != null && !resumeFile.isEmpty()) {
@@ -181,111 +181,6 @@ public class CandidateService {
     }
 
     /**
-     * 更新候选人基本信息
-     */
-    public CandidateResponseDto updateCandidate(Long candidateId, 
-                                              CandidateUpdateDto updateDto, 
-                                              String userEmail) {
-        Candidate candidate = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new RuntimeException("候选人不存在: " + candidateId));
-
-        // 验证权限：只能修改自己推荐的候选人
-        if (!candidate.getReferredBy().getEmail().equals(userEmail)) {
-            throw new RuntimeException("无权限修改此候选人信息");
-        }
-
-        // 检查微信号变更的唯一性
-        if (!candidate.getCandidateWechat().equals(updateDto.getCandidateWechat())) {
-            if (candidateRepository.existsByCandidateWechat(updateDto.getCandidateWechat())) {
-                throw new RuntimeException("候选人微信号已存在: " + updateDto.getCandidateWechat());
-            }
-        }
-
-        // 更新基本信息
-        candidate.setCandidateName(updateDto.getCandidateName());
-        candidate.setCandidateWechat(updateDto.getCandidateWechat());
-
-        // 如果候选人已被审核，修改后重置为待审核状态
-        if (candidate.getStatus() != CandidateStatus.PENDING) {
-            candidate.setStatus(CandidateStatus.PENDING);
-            candidate.setAdminComments("候选人信息已更新，需要重新审核");
-        }
-
-        Candidate savedCandidate = candidateRepository.save(candidate);
-        return convertToResponseDto(savedCandidate);
-    }
-
-    /**
-     * 更新候选人简历
-     */
-    public CandidateResponseDto updateCandidateResume(Long candidateId, 
-                                                    MultipartFile resumeFile, 
-                                                    String userEmail) {
-        Candidate candidate = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new RuntimeException("候选人不存在: " + candidateId));
-
-        // 验证权限
-        if (!candidate.getReferredBy().getEmail().equals(userEmail)) {
-            throw new RuntimeException("无权限修改此候选人信息");
-        }
-
-        // 验证文件
-        if (resumeFile == null || resumeFile.isEmpty()) {
-            throw new RuntimeException("简历文件不能为空");
-        }
-
-        // 验证文件类型（可选）
-        String contentType = resumeFile.getContentType();
-        if (contentType != null && !isValidResumeType(contentType)) {
-            throw new RuntimeException("不支持的文件类型，请上传PDF、DOC、DOCX或TXT文件");
-        }
-
-        // 验证文件大小（最大10MB）
-        if (resumeFile.getSize() > 10 * 1024 * 1024) {
-            throw new RuntimeException("文件大小不能超过10MB");
-        }
-
-        try {
-            // 更新简历文件
-            candidate.setResumeFile(resumeFile.getBytes());
-            candidate.setResumeFilename(resumeFile.getOriginalFilename());
-            candidate.setResumeContentType(resumeFile.getContentType());
-
-            // 如果候选人已被审核，上传新简历后重置为待审核状态
-            if (candidate.getStatus() != CandidateStatus.PENDING) {
-                candidate.setStatus(CandidateStatus.PENDING);
-                candidate.setAdminComments("候选人简历已更新，需要重新审核");
-            }
-
-            Candidate savedCandidate = candidateRepository.save(candidate);
-            return convertToResponseDto(savedCandidate);
-
-        } catch (IOException e) {
-            throw new RuntimeException("简历文件上传失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 删除候选人（用户可以删除自己推荐的候选人）
-     */
-    public void deleteCandidate(Long candidateId, String userEmail) {
-        Candidate candidate = candidateRepository.findById(candidateId)
-                .orElseThrow(() -> new RuntimeException("候选人不存在: " + candidateId));
-
-        // 验证权限
-        if (!candidate.getReferredBy().getEmail().equals(userEmail)) {
-            throw new RuntimeException("无权限删除此候选人");
-        }
-
-        // 只允许删除待审核状态的候选人
-        if (candidate.getStatus() != CandidateStatus.PENDING) {
-            throw new RuntimeException("只能删除待审核状态的候选人");
-        }
-
-        candidateRepository.delete(candidate);
-    }
-
-    /**
      * 验证简历文件类型
      */
     private boolean isValidResumeType(String contentType) {
@@ -296,8 +191,8 @@ public class CandidateService {
                contentType.startsWith("text/");
     }
 
-    /**
-     * 检查用户是否可以编辑候选人
+/**
+     * Check if user can edit candidate
      */
     public boolean canEditCandidate(Long candidateId, String userEmail) {
         return candidateRepository.findById(candidateId)
@@ -306,7 +201,7 @@ public class CandidateService {
     }
 
     /**
-     * 转换为响应DTO（带编辑权限信息）
+     * Convert to response DTO (with edit permission info)
      */
     private CandidateResponseDto convertToResponseDto(Candidate candidate) {
         CandidateResponseDto dto = new CandidateResponseDto();
@@ -323,24 +218,139 @@ public class CandidateService {
         dto.setCreatedAt(candidate.getCreatedAt());
         dto.setUpdatedAt(candidate.getUpdatedAt());
 
-        // 设置编辑权限（待审核状态可以编辑）
-        dto.setCanEdit(candidate.getStatus() == CandidateStatus.PENDING);
-        dto.setCanDelete(candidate.getStatus() == CandidateStatus.PENDING);
+        // Set edit permissions (screening status can be edited)
+        dto.setCanEdit(candidate.getStatus() == CandidateStatus.SCREENING);
+        dto.setCanDelete(candidate.getStatus() == CandidateStatus.SCREENING);
 
         return dto;
     }
 
     /**
-     * 转换为响应DTO（带用户特定权限）
+     * Convert to response DTO (with user-specific permissions)
      */
     private CandidateResponseDto convertToResponseDto(Candidate candidate, String currentUserEmail) {
         CandidateResponseDto dto = convertToResponseDto(candidate);
         
-        // 只有推荐人可以编辑自己推荐的候选人
+        // Only referrer can edit their own recommended candidates
         boolean isOwner = candidate.getReferredBy().getEmail().equals(currentUserEmail);
         dto.setCanEdit(dto.isCanEdit() && isOwner);
         dto.setCanDelete(dto.isCanDelete() && isOwner);
 
         return dto;
+    }
+
+    /**
+     * Update candidate basic information
+     */
+    public CandidateResponseDto updateCandidate(Long candidateId, 
+                                              CandidateUpdateDto updateDto, 
+                                              String userEmail) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found: " + candidateId));
+
+        // Verify permissions: can only modify own recommended candidates
+        if (!candidate.getReferredBy().getEmail().equals(userEmail)) {
+            throw new RuntimeException("No permission to modify this candidate");
+        }
+
+        // Check uniqueness of WeChat ID changes
+        if (!candidate.getCandidateWechat().equals(updateDto.getCandidateWechat())) {
+            if (candidateRepository.existsByCandidateWechat(updateDto.getCandidateWechat())) {
+                throw new RuntimeException("Candidate WeChat already exists: " + updateDto.getCandidateWechat());
+            }
+        }
+
+        // Update basic information
+        candidate.setCandidateName(updateDto.getCandidateName());
+        candidate.setCandidateWechat(updateDto.getCandidateWechat());
+
+        // If candidate has been reviewed, reset to screening status after modification
+        if (candidate.getStatus() != CandidateStatus.SCREENING) {
+            candidate.setStatus(CandidateStatus.SCREENING);
+            candidate.setAdminComments("Candidate information updated, requires re-screening");
+        }
+
+        Candidate savedCandidate = candidateRepository.save(candidate);
+        return convertToResponseDto(savedCandidate);
+    }
+
+    /**
+     * Update candidate resume
+     */
+    public CandidateResponseDto updateCandidateResume(Long candidateId, 
+                                                    MultipartFile resumeFile, 
+                                                    String userEmail) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found: " + candidateId));
+
+        // Verify permissions
+        if (!candidate.getReferredBy().getEmail().equals(userEmail)) {
+            throw new RuntimeException("No permission to modify this candidate");
+        }
+
+        // Validate file
+        if (resumeFile == null || resumeFile.isEmpty()) {
+            throw new RuntimeException("Resume file cannot be empty");
+        }
+
+        // Validate file type (optional)
+        String contentType = resumeFile.getContentType();
+        if (contentType != null && !isValidResumeType(contentType)) {
+            throw new RuntimeException("Unsupported file type, please upload PDF, DOC, DOCX or TXT files");
+        }
+
+        // Validate file size (max 10MB)
+        if (resumeFile.getSize() > 10 * 1024 * 1024) {
+            throw new RuntimeException("File size cannot exceed 10MB");
+        }
+
+        try {
+            // Update resume file
+            candidate.setResumeFile(resumeFile.getBytes());
+            candidate.setResumeFilename(resumeFile.getOriginalFilename());
+            candidate.setResumeContentType(resumeFile.getContentType());
+
+            // If candidate has been reviewed, reset to screening status after uploading new resume
+            if (candidate.getStatus() != CandidateStatus.SCREENING) {
+                candidate.setStatus(CandidateStatus.SCREENING);
+                candidate.setAdminComments("Candidate resume updated, requires re-screening");
+            }
+
+            Candidate savedCandidate = candidateRepository.save(candidate);
+            return convertToResponseDto(savedCandidate);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Resume file upload failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Delete candidate (users can delete their own recommended candidates)
+     */
+    public void deleteCandidate(Long candidateId, String userEmail) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found: " + candidateId));
+
+        // Verify permissions
+        if (!candidate.getReferredBy().getEmail().equals(userEmail)) {
+            throw new RuntimeException("No permission to delete this candidate");
+        }
+
+        // Only allow deletion of candidates in screening status
+        if (candidate.getStatus() != CandidateStatus.SCREENING) {
+            throw new RuntimeException("Can only delete candidates in screening status");
+        }
+
+        candidateRepository.delete(candidate);
+    }
+
+    /**
+     * Delete candidate (Admin function)
+     */
+    public void deleteCandidateByAdmin(Long candidateId) {
+        Candidate candidate = candidateRepository.findById(candidateId)
+                .orElseThrow(() -> new RuntimeException("Candidate not found: " + candidateId));
+
+        candidateRepository.delete(candidate);
     }
 }

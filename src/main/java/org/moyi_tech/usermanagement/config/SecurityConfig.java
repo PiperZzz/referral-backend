@@ -35,7 +35,18 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder() {
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                System.out.println("=== 密码比对 ===");
+                System.out.println("明文密码: " + rawPassword);
+                System.out.println("数据库Hash: " + encodedPassword);
+                boolean result = super.matches(rawPassword, encodedPassword);
+                System.out.println("比对结果: " + result);
+                System.out.println("================");
+                return result;
+            }
+        };
     }
 
     @Bean

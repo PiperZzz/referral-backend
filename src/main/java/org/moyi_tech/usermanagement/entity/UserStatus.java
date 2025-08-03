@@ -1,9 +1,8 @@
 package org.moyi_tech.usermanagement.entity;
 
 public enum UserStatus {
-    ACTIVE("激活"),
-    INACTIVE("未激活"),
-    SUSPENDED("暂停");
+    ACTIVE("Active"),
+    INACTIVE("Inactive");
 
     private final String description;
 

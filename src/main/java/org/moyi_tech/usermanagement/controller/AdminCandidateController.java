@@ -23,7 +23,7 @@ public class AdminCandidateController {
     private CandidateService candidateService;
 
     /**
-     * 获取所有候选人（管理员功能）
+     * Get all candidates (Admin function)
      */
     @GetMapping
     public ResponseEntity<?> getAllCandidates() {
@@ -47,7 +47,7 @@ public class AdminCandidateController {
     }
 
     /**
-     * 根据状态获取候选人
+     * Get candidates by status
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getCandidatesByStatus(@PathVariable CandidateStatus status) {
@@ -72,7 +72,7 @@ public class AdminCandidateController {
     }
 
     /**
-     * 更新候选人状态
+     * Update candidate status
      */
     @PutMapping("/{candidateId}/status")
     public ResponseEntity<?> updateCandidateStatus(
@@ -84,7 +84,7 @@ public class AdminCandidateController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "候选人状态更新成功");
+            response.put("message", "Candidate status updated successfully");
             response.put("candidate", candidate);
 
             return ResponseEntity.ok(response);
@@ -99,15 +99,15 @@ public class AdminCandidateController {
     }
 
     /**
-     * 获取待审核候选人（快捷方法）
+     * Get screening candidates (shortcut method)
      */
-    @GetMapping("/pending")
-    public ResponseEntity<?> getPendingCandidates() {
-        return getCandidatesByStatus(CandidateStatus.PENDING);
+    @GetMapping("/screening")
+    public ResponseEntity<?> getScreeningCandidates() {
+        return getCandidatesByStatus(CandidateStatus.SCREENING);
     }
 
     /**
-     * 批量审核候选人
+     * Batch approve candidates
      */
     @PutMapping("/batch-approve")
     public ResponseEntity<?> batchApproveCandidates(@RequestBody List<Long> candidateIds) {
@@ -119,23 +119,46 @@ public class AdminCandidateController {
                 try {
                     CandidateStatusUpdateDto updateDto = new CandidateStatusUpdateDto();
                     updateDto.setStatus(CandidateStatus.APPROVED);
-                    updateDto.setAdminComments("批量审核通过");
+                    updateDto.setAdminComments("Batch approved");
                     
                     candidateService.updateCandidateStatus(candidateId, updateDto);
                     successCount++;
                 } catch (Exception e) {
-                    // 记录失败的候选人ID，但继续处理其他的
+                    // Record failed candidate IDs but continue processing others
                     results.put("failed_" + candidateId, e.getMessage());
                 }
             }
 
             results.put("success", true);
-            results.put("message", String.format("批量操作完成，成功处理 %d/%d 个候选人", 
+            results.put("message", String.format("Batch operation completed, successfully processed %d/%d candidates", 
                                                 successCount, candidateIds.size()));
             results.put("processedCount", successCount);
             results.put("totalCount", candidateIds.size());
 
             return ResponseEntity.ok(results);
+
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * Delete candidate (Admin function)
+     */
+    @DeleteMapping("/{candidateId}")
+    public ResponseEntity<?> deleteCandidate(@PathVariable Long candidateId) {
+        try {
+            candidateService.deleteCandidateByAdmin(candidateId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Candidate deleted successfully");
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();

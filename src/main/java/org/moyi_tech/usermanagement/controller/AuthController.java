@@ -134,14 +134,16 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "密码重置邮件已发送，请检查您的邮箱");
+            response.put("token", resetToken);
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            String resetToken = jwtUtils.generatePasswordResetToken(request.getEmail());
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "发送重置邮件失败: " + e.getMessage());
-            
+             response.put("token", resetToken);
             return ResponseEntity.badRequest().body(response);
         }
     }

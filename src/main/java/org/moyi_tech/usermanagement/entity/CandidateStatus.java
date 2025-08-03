@@ -1,11 +1,12 @@
 package org.moyi_tech.usermanagement.entity;
 
 public enum CandidateStatus {
-    PENDING("待审核"),
-    APPROVED("已审核"),
-    REJECTED("已拒绝"),
-    TRAINING("培训中"), 
-    MARKETING("推广中");
+    SCREENING("Screening"),
+    APPROVED("Approved"),
+    REJECTED("Rejected"),
+    TRAINING("Training"), 
+    MARKETING("Marketing"),
+    OFFERED("Offered");
     
     private final String description;
 

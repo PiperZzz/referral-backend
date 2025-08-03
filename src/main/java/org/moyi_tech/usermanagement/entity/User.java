@@ -18,12 +18,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Email(message = "请输入有效的邮箱地址")
-    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email cannot be empty")
     @Column(unique = true, nullable = false)
     private String email;
 
-    @NotBlank(message = "密码不能为空")
+    @NotBlank(message = "Password cannot be empty")
     @Column(nullable = false)
     private String password;
 
@@ -53,7 +53,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 构造函数
+    // Constructors
     public User() {}
 
     public User(String email, String password) {
@@ -61,7 +61,7 @@ public class User {
         this.password = password;
     }
 
-    // Getters和Setters
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
