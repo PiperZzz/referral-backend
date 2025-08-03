@@ -1,8 +1,8 @@
 package org.moyi_tech.usermanagement.service;
 
+import org.moyi_tech.usermanagement.constant.CandidateStatus;
 import org.moyi_tech.usermanagement.dto.UserProfileDto;
 import org.moyi_tech.usermanagement.dto.UserProfileUpdateDto;
-import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.repository.CandidateRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;

@@ -1,7 +1,8 @@
 package org.moyi_tech.usermanagement.dto;
 
-import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import java.time.LocalDateTime;
+
+import org.moyi_tech.usermanagement.constant.CandidateStatus;
 
 public class CandidateInfoDto {
     private Long id;

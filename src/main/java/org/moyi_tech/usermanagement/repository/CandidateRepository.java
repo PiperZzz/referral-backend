@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.repository;
 
+import org.moyi_tech.usermanagement.constant.CandidateStatus;
 import org.moyi_tech.usermanagement.entity.Candidate;
-import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import org.moyi_tech.usermanagement.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

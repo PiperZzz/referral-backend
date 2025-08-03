@@ -1,8 +1,8 @@
 package org.moyi_tech.usermanagement.controller;
 
+import org.moyi_tech.usermanagement.constant.CandidateStatus;
 import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateStatusUpdateDto;
-import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import org.moyi_tech.usermanagement.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

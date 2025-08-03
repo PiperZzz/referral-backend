@@ -1,7 +1,8 @@
 package org.moyi_tech.usermanagement.dto;
 
+import org.moyi_tech.usermanagement.constant.CandidateStatus;
+
 import jakarta.validation.constraints.NotNull;
-import org.moyi_tech.usermanagement.entity.CandidateStatus;
 
 public class CandidateStatusUpdateDto {
     @NotNull(message = "状态不能为空")

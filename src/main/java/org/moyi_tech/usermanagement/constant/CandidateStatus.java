@@ -1,4 +1,4 @@
-package org.moyi_tech.usermanagement.entity;
+package org.moyi_tech.usermanagement.constant;
 
 public enum CandidateStatus {
     SCREENING("Screening"),
