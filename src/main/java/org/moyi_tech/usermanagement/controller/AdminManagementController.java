@@ -2,7 +2,7 @@ package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.AdminInfoDto;
 import org.moyi_tech.usermanagement.dto.AdminInfoResponseDto;
-import org.moyi_tech.usermanagement.service.HelpService;
+import org.moyi_tech.usermanagement.service.AdminInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class AdminManagementController {
 
     @Autowired
-    private HelpService helpService;
+    private AdminInfoService helpService;
 
     /**
      * 获取所有管理员（包含非活跃的）

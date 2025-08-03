@@ -14,7 +14,7 @@ public class RoleInitializationService implements CommandLineRunner {
     private RoleRepository roleRepository;
 
     @Autowired
-    private HelpService helpService;
+    private AdminInfoService helpService;
 
     @Autowired
     private MasterService masterService;

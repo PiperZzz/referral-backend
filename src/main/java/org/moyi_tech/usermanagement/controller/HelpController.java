@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.service.HelpService;
+import org.moyi_tech.usermanagement.service.AdminInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class HelpController {
 
     @Autowired
-    private HelpService helpService;
+    private AdminInfoService adminInfoService;
 
     /**
      * Get admin WeChat information for Help overlay
@@ -23,7 +23,7 @@ public class HelpController {
     @GetMapping("/admins")
     public ResponseEntity<?> getAdminWeChatInfo() {
         try {
-            List<Map<String, String>> adminInfo = helpService.getAdminWeChatInfo();
+            List<Map<String, String>> adminInfo = adminInfoService.getAdminWeChatInfo();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -49,7 +49,7 @@ public class HelpController {
     @GetMapping("/info")
     public ResponseEntity<?> getHelpInfo() {
         try {
-            Map<String, Object> helpInfo = helpService.getHelpInfo();
+            Map<String, Object> helpInfo = adminInfoService.getHelpInfo();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

@@ -1,5 +1,6 @@
 package org.moyi_tech.usermanagement.config;
 
+import org.moyi_tech.usermanagement.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
