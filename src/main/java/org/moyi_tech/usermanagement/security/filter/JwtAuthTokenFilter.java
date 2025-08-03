@@ -1,4 +1,4 @@
-package org.moyi_tech.usermanagement.config;
+package org.moyi_tech.usermanagement.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
