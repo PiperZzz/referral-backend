@@ -5,15 +5,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class PasswordResetRequest {
-    @Email(message = "请输入有效的邮箱地址")
-    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email cannot be empty")
     private String email;
 
-    @NotBlank(message = "重置Token不能为空")
+    @NotBlank(message = "Reset token cannot be empty")
     private String token;
 
-    @NotBlank(message = "新密码不能为空")
-    @Size(min = 8, max = 20, message = "密码长度必须在8-20字符之间")
+    @NotBlank(message = "New password cannot be empty")
+    @Size(min = 8, max = 20, message = "Password length must be between 8-20 characters")
     private String newPassword;
 
     public PasswordResetRequest() {}

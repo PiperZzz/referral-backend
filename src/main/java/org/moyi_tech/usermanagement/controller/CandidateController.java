@@ -49,7 +49,7 @@ public class CandidateController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "候选人推荐成功");
+            response.put("message", "Candidate created successfully");
             response.put("candidate", candidate);
 
             return ResponseEntity.ok(response);
@@ -153,7 +153,7 @@ public class CandidateController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "候选人信息更新成功");
+            response.put("message", "Candidate updated successfully");
             response.put("candidate", candidate);
 
             return ResponseEntity.ok(response);
@@ -177,7 +177,7 @@ public class CandidateController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "候选人删除成功");
+            response.put("message", "Candidate deleted successfully");
 
             return ResponseEntity.ok(response);
 

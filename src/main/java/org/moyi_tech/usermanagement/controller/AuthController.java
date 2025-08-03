@@ -51,7 +51,7 @@ public class AuthController {
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "用户注册成功，请等待管理员激活");
+            response.put("message", "User registered successfully");
             response.put("user", user);
             
             return ResponseEntity.ok(response);
@@ -81,7 +81,7 @@ public class AuthController {
 
             // 获取用户信息
             UserInfoDto userInfo = userService.findUserByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + loginRequest.getEmail()));
 
             // 确定主要角色和默认路由
             String primaryRole = RoleUtils.determinePrimaryRole(userInfo.getRoles());
@@ -92,7 +92,7 @@ public class AuthController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "登录成功");
+            response.put("message", "Login successful");
             response.put("data", loginResponse);
 
             return ResponseEntity.ok(response);
@@ -100,7 +100,7 @@ public class AuthController {
         } catch (AuthenticationException e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "邮箱或密码错误");
+            response.put("message", "Email or password is incorrect");
             
             return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
@@ -121,7 +121,7 @@ public class AuthController {
             if (!userService.existsByEmail(request.getEmail())) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                response.put("message", "邮箱地址不存在");
+                response.put("message", "Email not found");
                 return ResponseEntity.badRequest().body(response);
             }
 
@@ -130,7 +130,7 @@ public class AuthController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "密码重置邮件已发送，请检查您的邮箱");
+            response.put("message", "Password reset email sent successfully");
             response.put("token", resetToken);
 
             return ResponseEntity.ok(response);
@@ -139,7 +139,7 @@ public class AuthController {
             String resetToken = jwtUtils.generatePasswordResetToken(request.getEmail());
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "发送重置邮件失败: " + e.getMessage());
+            response.put("message", "Failed to send to " + e.getMessage());
              response.put("token", resetToken);
             return ResponseEntity.badRequest().body(response);
         }
@@ -155,7 +155,7 @@ public class AuthController {
             if (!jwtUtils.validateJwtToken(request.getToken())) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                response.put("message", "重置链接已过期或无效");
+                response.put("message", "Password reset token is invalid or expired");
                 return ResponseEntity.badRequest().body(response);
             }
 
@@ -164,7 +164,7 @@ public class AuthController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "密码重置成功，请使用新密码登录");
+            response.put("message", "Password reset successfully");
 
             return ResponseEntity.ok(response);
 
@@ -220,20 +220,20 @@ public class AuthController {
                 
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
-                response.put("message", "登出成功");
+                response.put("message", "Logout successful");
                 
                 return ResponseEntity.ok(response);
             } else {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                response.put("message", "未找到有效的登录token");
+                response.put("message", "Failed to find token in request header");
                 
                 return ResponseEntity.badRequest().body(response);
             }
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "登出失败: " + e.getMessage());
+            response.put("message", "Failed to logout " + e.getMessage());
             
             return ResponseEntity.badRequest().body(response);
         }
@@ -260,34 +260,34 @@ public class AuthController {
                     
                     // 获取用户信息
                     UserInfoDto userInfo = userService.findUserByEmail(authentication.getName())
-                            .orElseThrow(() -> new RuntimeException("用户不存在"));
+                            .orElseThrow(() -> new RuntimeException("User not found with email: " + authentication.getName()));
 
                     LoginResponse loginResponse = new LoginResponse(newToken, userInfo);
 
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
-                    response.put("message", "Token刷新成功");
+                    response.put("message", "Token refreshed successfully");
                     response.put("data", loginResponse);
 
                     return ResponseEntity.ok(response);
                 } else {
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", false);
-                    response.put("message", "Token还未到期，无需刷新");
+                    response.put("message", "Token is not expiring soon, no need to refresh");
                     
                     return ResponseEntity.badRequest().body(response);
                 }
             } else {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                response.put("message", "未找到有效的token");
+                response.put("message", "Failed to find token in request header");
                 
                 return ResponseEntity.badRequest().body(response);
             }
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "Token刷新失败: " + e.getMessage());
+            response.put("message", "Failed to refresh token" + e.getMessage());
             
             return ResponseEntity.badRequest().body(response);
         }
@@ -320,7 +320,7 @@ public class AuthController {
             } else {
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
-                response.put("message", "未找到token");
+                response.put("message", "Failed to find token in request header");
                 
                 return ResponseEntity.badRequest().body(response);
             }

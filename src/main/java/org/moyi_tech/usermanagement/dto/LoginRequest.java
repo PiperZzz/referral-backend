@@ -4,11 +4,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
-    @Email(message = "请输入有效的邮箱地址")
-    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email cannot be empty")
     private String email;
 
-    @NotBlank(message = "密码不能为空")
+    @NotBlank(message = "Password cannot be empty")
     private String password;
 
     public LoginRequest() {}

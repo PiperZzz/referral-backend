@@ -2,10 +2,16 @@ package org.moyi_tech.usermanagement.dto;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class AdminInfoDto {
     private Long id;
+    @NotBlank(message = "Admin name cannot be empty")
     private String adminName;
+    @NotBlank(message = "WeChat ID cannot be empty")
     private String wechatId;
+    @Email(message = "Please enter a valid email address")
     private String email;
     private String phoneNumber;
     private String department;

@@ -17,7 +17,7 @@ public class DebugController {
     public ResponseEntity<?> test() {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "后端连接正常");
+        response.put("message", "Backend is running and CORS is configured correctly");
         response.put("timestamp", System.currentTimeMillis());
         
         return ResponseEntity.ok(response);
@@ -30,7 +30,7 @@ public class DebugController {
     public ResponseEntity<?> testPost(@RequestBody Map<String, Object> data) {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "POST请求正常");
+        response.put("message", "POST request received successfully");
         response.put("received", data);
         response.put("timestamp", System.currentTimeMillis());
         

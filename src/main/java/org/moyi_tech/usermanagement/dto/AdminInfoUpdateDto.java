@@ -4,13 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class AdminInfoUpdateDto {
-    @NotBlank(message = "管理员姓名不能为空")
+    @NotBlank(message = "Admin name cannot be empty")
     private String adminName;
 
-    @NotBlank(message = "微信号不能为空")
+    @NotBlank(message = "WeChat ID cannot be empty")
     private String wechatId;
 
-    @Email(message = "请输入有效的邮箱地址")
+    @Email(message = "Please enter a valid email address")
     private String email;
 
     private String phoneNumber;

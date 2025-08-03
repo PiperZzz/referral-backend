@@ -5,18 +5,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class UserRoleUpdateDto {
-    @Email(message = "请输入有效的邮箱地址")
-    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email cannot be empty")
     private String email;
 
-    @NotNull(message = "目标角色不能为空")
-    private String targetRole; // "ADMIN" 或 "USER"
+    @NotNull(message = "Target role cannot be empty")
+    private String targetRole;
 
-    private String demoteAdminEmail; // 当提升为 Admin 时，如果需要降级的 Admin 邮箱
+    private String demoteAdminEmail;
 
     public UserRoleUpdateDto() {}
 
-    // Getters and Setters
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 

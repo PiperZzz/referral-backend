@@ -6,12 +6,12 @@ import jakarta.validation.constraints.Size;
 
 public class RegistrationRequest {
     
-    @Email(message = "请输入有效的邮箱地址")
-    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email cannot be empty")
     private String email;
 
-    @NotBlank(message = "密码不能为空")
-    @Size(min = 6, max = 20, message = "密码长度必须在6-20字符之间")
+    @NotBlank(message = "Password cannot be empty")
+    @Size(min = 6, max = 20, message = "Password length must be between 6-20 characters")
     private String password;
 
     private String wechatId;

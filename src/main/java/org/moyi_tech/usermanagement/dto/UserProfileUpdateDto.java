@@ -3,7 +3,7 @@ package org.moyi_tech.usermanagement.dto;
 import jakarta.validation.constraints.Size;
 
 public class UserProfileUpdateDto {
-    @Size(max = 50, message = "微信号长度不能超过50字符")
+    @Size(max = 50, message = "WeChat ID cannot exceed 50 characters")
     private String wechatId;
 
     public UserProfileUpdateDto() {}
