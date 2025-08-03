@@ -14,46 +14,49 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     
-    // 根据邮箱查找用户
+    // Find user by email
     Optional<User> findByEmail(String email);
     
-    // 检查邮箱是否已存在
+    // Check if email exists
     boolean existsByEmail(String email);
     
-    // 根据状态查找用户
+    // Find users by status
     List<User> findByStatus(UserStatus status);
     
-    // 查找所有普通用户（非管理员）
+    // Count users by status
+    long countByStatus(UserStatus status);
+    
+    // Find all regular users (non-admin)
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_USER'")
     List<User> findAllRegularUsers();
     
-    // 根据微信号查找用户
+    // Find user by WeChat ID
     Optional<User> findByWechatId(String wechatId);
     
-    // 根据推荐人微信号查找用户
+    // Find users by referrer WeChat ID
     List<User> findByReferrerWechatId(String referrerWechatId);
     
-    // 统计各状态用户数量
+    // Count users by status (breakdown)
     @Query("SELECT u.status, COUNT(u) FROM User u GROUP BY u.status")
     List<Object[]> countUsersByStatus();
     
-    // 根据邮箱模糊搜索
+    // Find users by email (fuzzy search)
     @Query("SELECT u FROM User u WHERE u.email LIKE %:email%")
     List<User> findByEmailContaining(@Param("email") String email);
 
-    // 根据角色查找用户
+    // Find users by role
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
     List<User> findByRoleName(@Param("roleName") RoleName roleName);
     
-    // 统计指定角色的用户数量
+    // Count users by role
     @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = :roleName")
     long countByRoleName(@Param("roleName") RoleName roleName);
     
-    // 查找所有管理员
+    // Find all admins
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_ADMIN'")
     List<User> findAllAdmins();
     
-    // 查找Master用户
+    // Find Master user
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'ROLE_MASTER'")
     Optional<User> findMaster();
 }

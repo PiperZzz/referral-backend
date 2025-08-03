@@ -24,11 +24,11 @@ public class UserProfileService {
     private CandidateRepository candidateRepository;
 
     /**
-     * 获取用户个人资料
+     * Get user profile
      */
     public UserProfileDto getUserProfile(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + userEmail));
+                .orElseThrow(() -> new RuntimeException("User not found: " + userEmail));
 
         UserProfileDto profile = new UserProfileDto();
         profile.setId(user.getId());
@@ -42,13 +42,13 @@ public class UserProfileService {
     }
 
     /**
-     * 更新用户个人资料（只能修改微信号）
+     * Update user profile (can only modify WeChat ID)
      */
     public UserProfileDto updateUserProfile(String userEmail, UserProfileUpdateDto updateDto) {
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + userEmail));
+                .orElseThrow(() -> new RuntimeException("User not found: " + userEmail));
 
-        // 只更新微信号
+        // Only update WeChat ID
         user.setWechatId(updateDto.getWechatId());
 
         User savedUser = userRepository.save(user);
@@ -56,29 +56,17 @@ public class UserProfileService {
     }
 
     /**
-     * 计算用户等级
-     * 基于用户推荐的候选人数量计算等级
+     * Calculate user level
+     * According to Feature 1.7.4: "User Level" is the number of candidates in the "Offered" status
      */
     private Integer calculateUserLevel(User user) {
-        long totalCandidates = candidateRepository.countByReferredById(user.getId());
-        
-        // 等级计算规则
-        if (totalCandidates >= 50) {
-            return 5; // 专家级
-        } else if (totalCandidates >= 20) {
-            return 4; // 高级
-        } else if (totalCandidates >= 10) {
-            return 3; // 中级
-        } else if (totalCandidates >= 5) {
-            return 2; // 初级
-        } else {
-            return 1; // 新手
-        }
+        long offeredCandidates = candidateRepository.countByReferredByAndStatus(user, CandidateStatus.OFFERED);
+        return Math.toIntExact(offeredCandidates);
     }
 
     /**
-     * 获取开放候选人数量
-     * 统计状态为 APPROVED, TRAINING, MARKETING 的候选人数量
+     * Get open candidates count
+     * According to Feature 1.7.5: "Open Candidates" is the number of candidates in the status of "Approved", "Training", or "Marketing"
      */
     private Long getOpenCandidatesCount(User user) {
         List<CandidateStatus> openStatuses = Arrays.asList(

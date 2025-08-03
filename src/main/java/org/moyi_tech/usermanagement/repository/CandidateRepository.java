@@ -14,39 +14,42 @@ import java.util.Optional;
 @Repository
 public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     
-    // 根据候选人微信查找
+    // Find candidate by WeChat
     Optional<Candidate> findByCandidateWechat(String candidateWechat);
     
-    // 检查候选人微信是否已存在
+    // Check if candidate WeChat exists
     boolean existsByCandidateWechat(String candidateWechat);
     
-    // 根据推荐人查找候选人
+    // Find candidates by referrer
     List<Candidate> findByReferredBy(User referredBy);
     
-    // 根据推荐人ID查找候选人
+    // Find candidates by referrer ID
     List<Candidate> findByReferredById(Long userId);
     
-    // 根据状态查找候选人
+    // Find candidates by status
     List<Candidate> findByStatus(CandidateStatus status);
     
-    // 根据推荐人和状态查找
+    // Find candidates by referrer and status
     List<Candidate> findByReferredByAndStatus(User referredBy, CandidateStatus status);
     
-    // 统计推荐人的候选人数量
+    // Count candidates by referrer ID
     @Query("SELECT COUNT(c) FROM Candidate c WHERE c.referredBy.id = :userId")
     long countByReferredById(@Param("userId") Long userId);
     
-    // 统计各状态的候选人数量
+    // Count candidates by referrer and status
+    long countByReferredByAndStatus(User referredBy, CandidateStatus status);
+    
+    // Count candidates by status
     @Query("SELECT c.status, COUNT(c) FROM Candidate c GROUP BY c.status")
     List<Object[]> countCandidatesByStatus();
     
-    // 根据候选人姓名模糊搜索
+    // Find candidates by name (fuzzy search)
     @Query("SELECT c FROM Candidate c WHERE c.candidateName LIKE %:name%")
     List<Candidate> findByCandidateNameContaining(@Param("name") String name);
     
-    // 获取最新的候选人（用于管理员查看）
+    // Get latest candidates (for admin view)
     List<Candidate> findTop10ByOrderByCreatedAtDesc();
 
-    // 统计用户在指定状态列表中的候选人数量
+    // Count candidates by referrer and status list (for open candidates calculation)
     long countByReferredByAndStatusIn(User referredBy, List<CandidateStatus> statuses);
 }

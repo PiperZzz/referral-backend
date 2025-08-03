@@ -22,7 +22,7 @@ public class UserProfileController {
     private UserProfileService userProfileService;
 
     /**
-     * 获取用户个人资料
+     * Get user profile
      */
     @GetMapping
     public ResponseEntity<?> getUserProfile(Principal principal) {
@@ -32,21 +32,21 @@ public class UserProfileController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("profile", profile);
-            response.put("message", "获取用户资料成功");
+            response.put("message", "User profile retrieved successfully");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "获取用户资料失败: " + e.getMessage());
+            response.put("message", "Failed to retrieve user profile: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
         }
     }
 
     /**
-     * 更新用户个人资料
+     * Update user profile
      */
     @PutMapping
     public ResponseEntity<?> updateUserProfile(
@@ -58,14 +58,14 @@ public class UserProfileController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("profile", profile);
-            response.put("message", "用户资料更新成功");
+            response.put("message", "User profile updated successfully");
 
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
-            response.put("message", "用户资料更新失败: " + e.getMessage());
+            response.put("message", "Failed to update user profile: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
         }
