@@ -1,11 +1,11 @@
 package org.moyi_tech.usermanagement.service;
 
+import org.moyi_tech.usermanagement.constant.UserStatus;
 import org.moyi_tech.usermanagement.dto.RegistrationRequest;
 import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.entity.Role;
 import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
-import org.moyi_tech.usermanagement.entity.UserStatus;
 import org.moyi_tech.usermanagement.repository.RoleRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

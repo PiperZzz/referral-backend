@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.constant.CandidateStatus;
-import org.moyi_tech.usermanagement.entity.UserStatus;
+import org.moyi_tech.usermanagement.constant.UserStatus;
 import org.moyi_tech.usermanagement.repository.CandidateRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

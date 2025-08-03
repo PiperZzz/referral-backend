@@ -1,8 +1,9 @@
 package org.moyi_tech.usermanagement.dto;
 
-import org.moyi_tech.usermanagement.entity.UserStatus;
 import java.time.LocalDateTime;
 import java.util.Set;
+
+import org.moyi_tech.usermanagement.constant.UserStatus;
 
 public class UserInfoDto {
     

@@ -1,8 +1,8 @@
 package org.moyi_tech.usermanagement.repository;
 
+import org.moyi_tech.usermanagement.constant.UserStatus;
 import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
-import org.moyi_tech.usermanagement.entity.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
