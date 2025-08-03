@@ -2,7 +2,7 @@ package org.moyi_tech.usermanagement.config;
 
 import org.moyi_tech.usermanagement.security.filter.JwtAuthTokenFilter;
 import org.moyi_tech.usermanagement.security.handler.JwtAuthenticationEntryPoint;
-import org.moyi_tech.usermanagement.service.UserDetailsServiceImpl;
+import org.moyi_tech.usermanagement.security.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

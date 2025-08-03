@@ -1,4 +1,4 @@
-package org.moyi_tech.usermanagement.service;
+package org.moyi_tech.usermanagement.security.service;
 
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.repository.UserRepository;
