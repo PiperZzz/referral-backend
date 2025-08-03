@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.service;
 
+import org.moyi_tech.usermanagement.constant.RoleName;
 import org.moyi_tech.usermanagement.entity.Role;
-import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

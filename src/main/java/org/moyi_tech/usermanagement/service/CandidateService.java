@@ -1,13 +1,13 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.constant.CandidateStatus;
+import org.moyi_tech.usermanagement.constant.RoleName;
 import org.moyi_tech.usermanagement.constant.UserStatus;
 import org.moyi_tech.usermanagement.dto.CandidateCreateDto;
 import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateStatusUpdateDto;
 import org.moyi_tech.usermanagement.dto.CandidateUpdateDto;
 import org.moyi_tech.usermanagement.entity.Candidate;
-import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.repository.CandidateRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;

@@ -1,10 +1,10 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.dto.AdminInfoUpdateDto;
+import org.moyi_tech.usermanagement.constant.RoleName;
 import org.moyi_tech.usermanagement.constant.UserStatus;
 import org.moyi_tech.usermanagement.dto.AdminInfoDto;
 import org.moyi_tech.usermanagement.entity.AdminInfo;
-import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.repository.AdminInfoRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;

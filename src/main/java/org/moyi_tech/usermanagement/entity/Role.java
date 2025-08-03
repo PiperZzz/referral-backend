@@ -1,5 +1,7 @@
 package org.moyi_tech.usermanagement.entity;
 
+import org.moyi_tech.usermanagement.constant.RoleName;
+
 import jakarta.persistence.*;
 
 @Entity
