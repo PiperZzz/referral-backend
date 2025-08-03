@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
+import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateStatusUpdateDto;
 import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import org.moyi_tech.usermanagement.service.CandidateService;
@@ -28,7 +28,7 @@ public class AdminCandidateController {
     @GetMapping
     public ResponseEntity<?> getAllCandidates() {
         try {
-            List<CandidateResponseDto> candidates = candidateService.getAllCandidates();
+            List<CandidateInfoDto> candidates = candidateService.getAllCandidates();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -52,7 +52,7 @@ public class AdminCandidateController {
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getCandidatesByStatus(@PathVariable CandidateStatus status) {
         try {
-            List<CandidateResponseDto> candidates = candidateService.getCandidatesByStatus(status);
+            List<CandidateInfoDto> candidates = candidateService.getCandidatesByStatus(status);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -80,7 +80,7 @@ public class AdminCandidateController {
             @Valid @RequestBody CandidateStatusUpdateDto updateDto) {
         
         try {
-            CandidateResponseDto candidate = candidateService.updateCandidateStatus(candidateId, updateDto);
+            CandidateInfoDto candidate = candidateService.updateCandidateStatus(candidateId, updateDto);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

@@ -3,7 +3,7 @@ package org.moyi_tech.usermanagement.dto;
 import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import java.time.LocalDateTime;
 
-public class CandidateResponseDto {
+public class CandidateInfoDto {
     private Long id;
     private String candidateName;
     private String candidateWechat;
@@ -16,7 +16,7 @@ public class CandidateResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public CandidateResponseDto() {}
+    public CandidateInfoDto() {}
 
     // Getters and Setters
     public Long getId() { return id; }

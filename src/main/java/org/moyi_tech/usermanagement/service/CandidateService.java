@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.dto.CandidateCreateDto;
-import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
+import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateStatusUpdateDto;
 import org.moyi_tech.usermanagement.dto.CandidateUpdateDto;
 import org.moyi_tech.usermanagement.entity.Candidate;
@@ -38,7 +38,7 @@ public class CandidateService {
     /**
      * 创建新候选人（带简历上传）
      */
-    public CandidateResponseDto createCandidate(CandidateCreateDto createDto, 
+    public CandidateInfoDto createCandidate(CandidateCreateDto createDto, 
                                               MultipartFile resumeFile, 
                                               String userEmail) {
         // 检查候选人微信是否已存在
@@ -80,7 +80,7 @@ public class CandidateService {
     /**
      * 获取用户的所有候选人
      */
-    public List<CandidateResponseDto> getUserCandidates(String userEmail) {
+    public List<CandidateInfoDto> getUserCandidates(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("用户不存在: " + userEmail));
 
@@ -93,7 +93,7 @@ public class CandidateService {
     /**
      * 获取所有候选人（管理员功能）
      */
-    public List<CandidateResponseDto> getAllCandidates() {
+    public List<CandidateInfoDto> getAllCandidates() {
         return candidateRepository.findAll()
                 .stream()
                 .map(this::convertToResponseDto)
@@ -103,7 +103,7 @@ public class CandidateService {
     /**
      * 根据状态获取候选人（管理员功能）
      */
-    public List<CandidateResponseDto> getCandidatesByStatus(CandidateStatus status) {
+    public List<CandidateInfoDto> getCandidatesByStatus(CandidateStatus status) {
         return candidateRepository.findByStatus(status)
                 .stream()
                 .map(this::convertToResponseDto)
@@ -113,7 +113,7 @@ public class CandidateService {
     /**
      * 更新候选人状态（管理员功能）
      */
-    public CandidateResponseDto updateCandidateStatus(Long candidateId, 
+    public CandidateInfoDto updateCandidateStatus(Long candidateId, 
                                                     CandidateStatusUpdateDto updateDto) {
         Candidate candidate = candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("候选人不存在: " + candidateId));
@@ -128,7 +128,7 @@ public class CandidateService {
     /**
      * 获取单个候选人详情（用户只能查看自己推荐的）
      */
-    public CandidateResponseDto getCandidateById(Long candidateId, String userEmail) {
+    public CandidateInfoDto getCandidateById(Long candidateId, String userEmail) {
         Candidate candidate = candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("候选人不存在: " + candidateId));
 
@@ -152,8 +152,8 @@ public class CandidateService {
     /**
      * Convert to response DTO (with edit permission info)
      */
-    private CandidateResponseDto convertToResponseDto(Candidate candidate) {
-        CandidateResponseDto dto = new CandidateResponseDto();
+    private CandidateInfoDto convertToResponseDto(Candidate candidate) {
+        CandidateInfoDto dto = new CandidateInfoDto();
         dto.setId(candidate.getId());
         dto.setCandidateName(candidate.getCandidateName());
         dto.setCandidateWechat(candidate.getCandidateWechat());
@@ -177,8 +177,8 @@ public class CandidateService {
     /**
      * Convert to response DTO (with user-specific permissions)
      */
-    private CandidateResponseDto convertToResponseDto(Candidate candidate, String currentUserEmail) {
-        CandidateResponseDto dto = convertToResponseDto(candidate);
+    private CandidateInfoDto convertToResponseDto(Candidate candidate, String currentUserEmail) {
+        CandidateInfoDto dto = convertToResponseDto(candidate);
         
         // Only referrer can edit their own recommended candidates
         boolean isOwner = candidate.getReferredBy().getEmail().equals(currentUserEmail);
@@ -191,7 +191,7 @@ public class CandidateService {
     /**
      * Update candidate resume
      */
-    public CandidateResponseDto updateCandidateResume(Long candidateId, 
+    public CandidateInfoDto updateCandidateResume(Long candidateId, 
                                                     MultipartFile resumeFile, 
                                                     String userEmail) {
         Candidate candidate = candidateRepository.findById(candidateId)
@@ -416,7 +416,7 @@ public class CandidateService {
      * Get candidate for editing (with permission check)
      * For Feature 1.4.3 - Edit Referral overlay
      */
-    public CandidateResponseDto getCandidateForEdit(Long candidateId, String userEmail) {
+    public CandidateInfoDto getCandidateForEdit(Long candidateId, String userEmail) {
         Candidate candidate = candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new RuntimeException("Candidate not found: " + candidateId));
 
@@ -437,7 +437,7 @@ public class CandidateService {
      * Update candidate basic information
      * For Feature 1.4.3 - Edit candidate name and WeChat
      */
-    public CandidateResponseDto updateCandidate(Long candidateId, 
+    public CandidateInfoDto updateCandidate(Long candidateId, 
                                               CandidateUpdateDto updateDto, 
                                               String userEmail) {
         Candidate candidate = candidateRepository.findById(candidateId)

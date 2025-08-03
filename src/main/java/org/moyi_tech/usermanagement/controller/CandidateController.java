@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.CandidateCreateDto;
-import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
+import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateUpdateDto;
 import org.moyi_tech.usermanagement.entity.Candidate;
 import org.moyi_tech.usermanagement.service.CandidateService;
@@ -44,7 +44,7 @@ public class CandidateController {
             createDto.setCandidateName(candidateName);
             createDto.setCandidateWechat(candidateWechat);
 
-            CandidateResponseDto candidate = candidateService.createCandidate(
+            CandidateInfoDto candidate = candidateService.createCandidate(
                 createDto, resumeFile, principal.getName());
 
             Map<String, Object> response = new HashMap<>();
@@ -69,7 +69,7 @@ public class CandidateController {
     @GetMapping("/my-candidates")
     public ResponseEntity<?> getMyCandidates(Principal principal) {
         try {
-            List<CandidateResponseDto> candidates = candidateService.getUserCandidates(principal.getName());
+            List<CandidateInfoDto> candidates = candidateService.getUserCandidates(principal.getName());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -116,7 +116,7 @@ public class CandidateController {
     @GetMapping("/{candidateId}")
     public ResponseEntity<?> getCandidateById(@PathVariable Long candidateId, Principal principal) {
         try {
-            CandidateResponseDto candidate = candidateService.getCandidateById(candidateId, principal.getName());
+            CandidateInfoDto candidate = candidateService.getCandidateById(candidateId, principal.getName());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -148,7 +148,7 @@ public class CandidateController {
             updateDto.setCandidateName(candidateName);
             updateDto.setCandidateWechat(candidateWechat);
 
-            CandidateResponseDto candidate = candidateService.updateCandidate(
+            CandidateInfoDto candidate = candidateService.updateCandidate(
                 candidateId, updateDto, principal.getName());
 
             Map<String, Object> response = new HashMap<>();
@@ -316,7 +316,7 @@ public class CandidateController {
             Principal principal) {
         
         try {
-            CandidateResponseDto candidate = candidateService.updateCandidate(
+            CandidateInfoDto candidate = candidateService.updateCandidate(
                 candidateId, updateDto, principal.getName());
 
             Map<String, Object> response = new HashMap<>();
@@ -346,7 +346,7 @@ public class CandidateController {
             Principal principal) {
         
         try {
-            CandidateResponseDto candidate = candidateService.updateCandidateResume(
+            CandidateInfoDto candidate = candidateService.updateCandidateResume(
                 candidateId, resumeFile, principal.getName());
 
             Map<String, Object> response = new HashMap<>();
@@ -372,7 +372,7 @@ public class CandidateController {
     @GetMapping("/{candidateId}/edit")
     public ResponseEntity<?> getCandidateForEdit(@PathVariable Long candidateId, Principal principal) {
         try {
-            CandidateResponseDto candidate = candidateService.getCandidateForEdit(candidateId, principal.getName());
+            CandidateInfoDto candidate = candidateService.getCandidateForEdit(candidateId, principal.getName());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

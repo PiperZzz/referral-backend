@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
+import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.service.AdminReferralManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +54,7 @@ public class AdminReferralManagementController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MASTER')")
     public ResponseEntity<?> getUserCandidates(@PathVariable Long userId) {
         try {
-            List<CandidateResponseDto> candidates = adminReferralManagementService.getUserCandidates(userId);
+            List<CandidateInfoDto> candidates = adminReferralManagementService.getUserCandidates(userId);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

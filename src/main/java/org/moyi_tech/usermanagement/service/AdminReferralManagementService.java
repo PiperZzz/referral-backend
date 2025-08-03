@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.service;
 
-import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
+import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.entity.CandidateStatus;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.entity.UserStatus;
@@ -84,7 +84,7 @@ public class AdminReferralManagementService {
      * Get user candidates for "Show Refers" functionality
      * For Feature 2.2.3 - Show Refers button
      */
-    public List<CandidateResponseDto> getUserCandidates(Long userId) {
+    public List<CandidateInfoDto> getUserCandidates(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
@@ -178,8 +178,8 @@ public class AdminReferralManagementService {
      * Convert Candidate to Admin-specific CandidateResponseDto
      * Includes admin-specific permissions
      */
-    private CandidateResponseDto convertToAdminCandidateResponseDto(org.moyi_tech.usermanagement.entity.Candidate candidate) {
-        CandidateResponseDto dto = new CandidateResponseDto();
+    private CandidateInfoDto convertToAdminCandidateResponseDto(org.moyi_tech.usermanagement.entity.Candidate candidate) {
+        CandidateInfoDto dto = new CandidateInfoDto();
         dto.setId(candidate.getId());
         dto.setCandidateName(candidate.getCandidateName());
         dto.setCandidateWechat(candidate.getCandidateWechat());
