@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.controller;
 
+import org.moyi_tech.usermanagement.dto.AdminInfoUpdateDto;
 import org.moyi_tech.usermanagement.dto.AdminInfoDto;
-import org.moyi_tech.usermanagement.dto.AdminInfoResponseDto;
 import org.moyi_tech.usermanagement.service.AdminInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class AdminManagementController {
     @GetMapping
     public ResponseEntity<?> getAllAdmins() {
         try {
-            List<AdminInfoResponseDto> admins = helpService.getAllAdmins();
+            List<AdminInfoDto> admins = helpService.getAllAdmins();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -49,9 +49,9 @@ public class AdminManagementController {
      * 添加新管理员
      */
     @PostMapping
-    public ResponseEntity<?> addAdmin(@Valid @RequestBody AdminInfoDto adminDto) {
+    public ResponseEntity<?> addAdmin(@Valid @RequestBody AdminInfoUpdateDto adminDto) {
         try {
-            AdminInfoResponseDto admin = helpService.addAdmin(adminDto);
+            AdminInfoDto admin = helpService.addAdmin(adminDto);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -75,9 +75,9 @@ public class AdminManagementController {
     @PutMapping("/{adminId}")
     public ResponseEntity<?> updateAdmin(
             @PathVariable Long adminId,
-            @Valid @RequestBody AdminInfoDto adminDto) {
+            @Valid @RequestBody AdminInfoUpdateDto adminDto) {
         try {
-            AdminInfoResponseDto admin = helpService.updateAdmin(adminId, adminDto);
+            AdminInfoDto admin = helpService.updateAdmin(adminId, adminDto);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -101,7 +101,7 @@ public class AdminManagementController {
     @PutMapping("/{adminId}/toggle-status")
     public ResponseEntity<?> toggleAdminStatus(@PathVariable Long adminId) {
         try {
-            AdminInfoResponseDto admin = helpService.toggleAdminStatus(adminId);
+            AdminInfoDto admin = helpService.toggleAdminStatus(adminId);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

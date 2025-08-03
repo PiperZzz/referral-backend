@@ -1,27 +1,28 @@
 package org.moyi_tech.usermanagement.dto;
 
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-public class AdminInfoResponseDto {
-    private Long id;
+public class AdminInfoUpdateDto {
+    @NotBlank(message = "管理员姓名不能为空")
     private String adminName;
+
+    @NotBlank(message = "微信号不能为空")
     private String wechatId;
+
+    @Email(message = "请输入有效的邮箱地址")
     private String email;
+
     private String phoneNumber;
     private String department;
     private String position;
     private String description;
-    private Boolean isActive;
-    private Integer displayOrder;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Boolean isActive = true;
+    private Integer displayOrder = 0;
 
-    public AdminInfoResponseDto() {}
+    public AdminInfoUpdateDto() {}
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
     public String getAdminName() { return adminName; }
     public void setAdminName(String adminName) { this.adminName = adminName; }
 
@@ -48,10 +49,4 @@ public class AdminInfoResponseDto {
 
     public Integer getDisplayOrder() { return displayOrder; }
     public void setDisplayOrder(Integer displayOrder) { this.displayOrder = displayOrder; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

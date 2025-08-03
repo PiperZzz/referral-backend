@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.service;
 
+import org.moyi_tech.usermanagement.dto.AdminInfoUpdateDto;
 import org.moyi_tech.usermanagement.dto.AdminInfoDto;
-import org.moyi_tech.usermanagement.dto.AdminInfoResponseDto;
 import org.moyi_tech.usermanagement.entity.AdminInfo;
 import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
@@ -106,7 +106,7 @@ public class AdminInfoService {
     /**
      * Get all active admin info
      */
-    public List<AdminInfoResponseDto> getAllActiveAdmins() {
+    public List<AdminInfoDto> getAllActiveAdmins() {
         return adminInfoRepository.findAllActiveAdminsOrdered()
                 .stream()
                 .map(this::convertToResponseDto)
@@ -116,7 +116,7 @@ public class AdminInfoService {
     /**
      * Get all admin info (including inactive)
      */
-    public List<AdminInfoResponseDto> getAllAdmins() {
+    public List<AdminInfoDto> getAllAdmins() {
         return adminInfoRepository.findAllAdminsOrdered()
                 .stream()
                 .map(this::convertToResponseDto)
@@ -126,7 +126,7 @@ public class AdminInfoService {
     /**
      * Add new admin info
      */
-    public AdminInfoResponseDto addAdmin(AdminInfoDto adminDto) {
+    public AdminInfoDto addAdmin(AdminInfoUpdateDto adminDto) {
         // Check if WeChat ID already exists
         if (adminInfoRepository.existsByWechatId(adminDto.getWechatId())) {
             throw new RuntimeException("WeChat ID already exists: " + adminDto.getWechatId());
@@ -147,7 +147,7 @@ public class AdminInfoService {
     /**
      * Update admin info
      */
-    public AdminInfoResponseDto updateAdmin(Long adminId, AdminInfoDto adminDto) {
+    public AdminInfoDto updateAdmin(Long adminId, AdminInfoUpdateDto adminDto) {
         AdminInfo adminInfo = adminInfoRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found: " + adminId));
 
@@ -183,7 +183,7 @@ public class AdminInfoService {
     /**
      * Toggle admin status
      */
-    public AdminInfoResponseDto toggleAdminStatus(Long adminId) {
+    public AdminInfoDto toggleAdminStatus(Long adminId) {
         AdminInfo adminInfo = adminInfoRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found: " + adminId));
 
@@ -234,8 +234,8 @@ public class AdminInfoService {
     /**
      * Convert AdminInfo entity to response DTO
      */
-    private AdminInfoResponseDto convertToResponseDto(AdminInfo adminInfo) {
-        AdminInfoResponseDto dto = new AdminInfoResponseDto();
+    private AdminInfoDto convertToResponseDto(AdminInfo adminInfo) {
+        AdminInfoDto dto = new AdminInfoDto();
         dto.setId(adminInfo.getId());
         dto.setAdminName(adminInfo.getAdminName());
         dto.setWechatId(adminInfo.getWechatId());
@@ -254,7 +254,7 @@ public class AdminInfoService {
     /**
      * Convert DTO to AdminInfo entity
      */
-    private AdminInfo convertToEntity(AdminInfoDto dto) {
+    private AdminInfo convertToEntity(AdminInfoUpdateDto dto) {
         AdminInfo adminInfo = new AdminInfo();
         adminInfo.setAdminName(dto.getAdminName());
         adminInfo.setWechatId(dto.getWechatId());
@@ -271,7 +271,7 @@ public class AdminInfoService {
     /**
      * Update entity from DTO
      */
-    private void updateEntityFromDto(AdminInfo adminInfo, AdminInfoDto dto) {
+    private void updateEntityFromDto(AdminInfo adminInfo, AdminInfoUpdateDto dto) {
         adminInfo.setAdminName(dto.getAdminName());
         adminInfo.setWechatId(dto.getWechatId());
         adminInfo.setEmail(dto.getEmail());
