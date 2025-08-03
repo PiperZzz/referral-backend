@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class UserRegistrationDto {
+public class RegistrationRequest {
     
     @Email(message = "请输入有效的邮箱地址")
     @NotBlank(message = "邮箱不能为空")
@@ -19,9 +19,9 @@ public class UserRegistrationDto {
     private String referrerWechatId;
 
     // 构造函数
-    public UserRegistrationDto() {}
+    public RegistrationRequest() {}
 
-    public UserRegistrationDto(String email, String password) {
+    public RegistrationRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }

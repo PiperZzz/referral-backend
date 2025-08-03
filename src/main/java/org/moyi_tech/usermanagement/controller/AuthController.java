@@ -1,8 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.*;
-import org.moyi_tech.usermanagement.entity.Role;
-import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.service.EmailService;
 import org.moyi_tech.usermanagement.service.TokenBlacklistService;
 import org.moyi_tech.usermanagement.service.UserService;
@@ -22,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -48,9 +45,9 @@ public class AuthController {
      * 用户注册
      */
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationDto registrationDto) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
         try {
-            UserResponseDto user = userService.registerUser(registrationDto);
+            UserResponseDto user = userService.registerUser(registrationRequest);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.service;
 
-import org.moyi_tech.usermanagement.dto.UserRegistrationDto;
+import org.moyi_tech.usermanagement.dto.RegistrationRequest;
 import org.moyi_tech.usermanagement.dto.UserResponseDto;
 import org.moyi_tech.usermanagement.entity.Role;
 import org.moyi_tech.usermanagement.entity.RoleName;
@@ -36,18 +36,18 @@ public class UserService {
     /**
      * 用户注册
      */
-    public UserResponseDto registerUser(UserRegistrationDto registrationDto) {
+    public UserResponseDto registerUser(RegistrationRequest registrationRequest) {
         // 检查邮箱是否已存在
-        if (userRepository.existsByEmail(registrationDto.getEmail())) {
-            throw new RuntimeException("邮箱已被注册: " + registrationDto.getEmail());
+        if (userRepository.existsByEmail(registrationRequest.getEmail())) {
+            throw new RuntimeException("邮箱已被注册: " + registrationRequest.getEmail());
         }
 
         // 创建新用户
         User user = new User();
-        user.setEmail(registrationDto.getEmail());
-        user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-        user.setWechatId(registrationDto.getWechatId());
-        user.setReferrerWechatId(registrationDto.getReferrerWechatId());
+        user.setEmail(registrationRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+        user.setWechatId(registrationRequest.getWechatId());
+        user.setReferrerWechatId(registrationRequest.getReferrerWechatId());
         user.setStatus(UserStatus.INACTIVE); // 默认未激活状态
 
         // 分配默认角色

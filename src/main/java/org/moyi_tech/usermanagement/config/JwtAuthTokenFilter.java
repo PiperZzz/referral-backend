@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.moyi_tech.usermanagement.service.TokenBlacklistService;
 import org.moyi_tech.usermanagement.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,8 +31,8 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
     private TokenBlacklistService tokenBlacklistService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
-                                  FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
+                                  @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = parseJwt(request);
             

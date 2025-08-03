@@ -21,9 +21,6 @@ public class AdminReferralManagementService {
     @Autowired
     private CandidateRepository candidateRepository;
 
-    @Autowired
-    private CandidateService candidateService;
-
     /**
      * Get referral management data for admin portal
      * For Feature 2.2.1 - Referral Management table

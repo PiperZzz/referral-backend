@@ -71,7 +71,7 @@ public class MasterService {
                 .orElseThrow(() -> new RuntimeException("MASTER角色不存在")));
         master.setRoles(roles);
 
-        User savedMaster = userRepository.save(master);
+        userRepository.save(master);
 
         // 生成重置密码链接并发送邮件
         String resetToken = jwtUtils.generatePasswordResetToken(MASTER_EMAIL);

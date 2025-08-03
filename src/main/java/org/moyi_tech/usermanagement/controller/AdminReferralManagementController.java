@@ -1,7 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.CandidateResponseDto;
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
 import org.moyi_tech.usermanagement.service.AdminReferralManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
