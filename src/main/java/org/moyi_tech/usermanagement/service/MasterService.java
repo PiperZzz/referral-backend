@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.dto.UserRoleUpdateDto;
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.entity.Role;
 import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
@@ -83,7 +83,7 @@ public class MasterService {
     /**
      * 获取所有用户及其角色信息
      */
-    public List<UserResponseDto> getAllUsersWithRoles() {
+    public List<UserInfoDto> getAllUsersWithRoles() {
         return userRepository.findAll()
                 .stream()
                 .map(this::convertToUserResponseDto)
@@ -93,7 +93,7 @@ public class MasterService {
     /**
      * 提升用户为管理员
      */
-    public UserResponseDto promoteToAdmin(UserRoleUpdateDto updateDto) {
+    public UserInfoDto promoteToAdmin(UserRoleUpdateDto updateDto) {
         // 检查目标用户是否存在
         User targetUser = userRepository.findByEmail(updateDto.getEmail())
                 .orElseThrow(() -> new RuntimeException("用户不存在: " + updateDto.getEmail()));
@@ -128,7 +128,7 @@ public class MasterService {
     /**
      * 降级管理员为普通用户
      */
-    public UserResponseDto demoteFromAdmin(String adminEmail) {
+    public UserInfoDto demoteFromAdmin(String adminEmail) {
         User adminUser = userRepository.findByEmail(adminEmail)
                 .orElseThrow(() -> new RuntimeException("用户不存在: " + adminEmail));
 
@@ -152,7 +152,7 @@ public class MasterService {
     /**
      * 获取可降级的管理员列表
      */
-    public List<UserResponseDto> getDemotableAdmins() {
+    public List<UserInfoDto> getDemotableAdmins() {
         return userRepository.findAllAdmins()
                 .stream()
                 .filter(user -> !hasRole(user, RoleName.ROLE_MASTER)) // 排除Master
@@ -213,8 +213,8 @@ public class MasterService {
     /**
      * 转换为用户响应DTO
      */
-    private UserResponseDto convertToUserResponseDto(User user) {
-        UserResponseDto dto = new UserResponseDto();
+    private UserInfoDto convertToUserResponseDto(User user) {
+        UserInfoDto dto = new UserInfoDto();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
         dto.setWechatId(user.getWechatId());

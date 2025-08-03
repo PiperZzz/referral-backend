@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class UserController {
     public ResponseEntity<?> getUserProfile(Principal principal) {
         try {
             String email = principal.getName();
-            Optional<UserResponseDto> userOpt = userService.findUserByEmail(email);
+            Optional<UserInfoDto> userOpt = userService.findUserByEmail(email);
             
             if (userOpt.isPresent()) {
                 Map<String, Object> response = new HashMap<>();
@@ -60,7 +60,7 @@ public class UserController {
             String wechatId = wechatInfo.get("wechatId");
             String referrerWechatId = wechatInfo.get("referrerWechatId");
             
-            UserResponseDto updatedUser = userService.updateWechatInfo(email, wechatId, referrerWechatId);
+            UserInfoDto updatedUser = userService.updateWechatInfo(email, wechatId, referrerWechatId);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

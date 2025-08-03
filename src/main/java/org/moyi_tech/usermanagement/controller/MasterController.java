@@ -2,7 +2,7 @@ package org.moyi_tech.usermanagement.controller;
 
 import org.moyi_tech.usermanagement.dto.PasswordResetRequest;
 import org.moyi_tech.usermanagement.dto.UserRoleUpdateDto;
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.service.MasterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class MasterController {
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsersWithRoles() {
         try {
-            List<UserResponseDto> users = masterService.getAllUsersWithRoles();
+            List<UserInfoDto> users = masterService.getAllUsersWithRoles();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -52,7 +52,7 @@ public class MasterController {
     @PostMapping("/promote-admin")
     public ResponseEntity<?> promoteToAdmin(@Valid @RequestBody UserRoleUpdateDto updateDto) {
         try {
-            UserResponseDto user = masterService.promoteToAdmin(updateDto);
+            UserInfoDto user = masterService.promoteToAdmin(updateDto);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -81,7 +81,7 @@ public class MasterController {
                 throw new RuntimeException("邮箱不能为空");
             }
 
-            UserResponseDto user = masterService.demoteFromAdmin(adminEmail);
+            UserInfoDto user = masterService.demoteFromAdmin(adminEmail);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -105,7 +105,7 @@ public class MasterController {
     @GetMapping("/demotable-admins")
     public ResponseEntity<?> getDemotableAdmins() {
         try {
-            List<UserResponseDto> admins = masterService.getDemotableAdmins();
+            List<UserInfoDto> admins = masterService.getDemotableAdmins();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

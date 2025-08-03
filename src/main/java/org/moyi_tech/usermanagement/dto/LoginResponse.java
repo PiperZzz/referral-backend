@@ -5,11 +5,11 @@ import org.moyi_tech.usermanagement.util.RoleUtils;
 public class LoginResponse {
     private String token;
     private String type = "Bearer";
-    private UserResponseDto user;
+    private UserInfoDto user;
     private String primaryRole;    // "MASTER", "ADMIN", "USER"
     private String defaultRoute;   // 默认路由
 
-    public LoginResponse(String token, UserResponseDto user) {
+    public LoginResponse(String token, UserInfoDto user) {
         this.token = token;
         this.user = user;
         // 如果没有提供角色信息，从用户DTO中推断
@@ -17,7 +17,7 @@ public class LoginResponse {
         this.defaultRoute = RoleUtils.getDefaultRouteForRole(this.primaryRole);
     }
 
-    public LoginResponse(String token, UserResponseDto user, String primaryRole, String defaultRoute) {
+    public LoginResponse(String token, UserInfoDto user, String primaryRole, String defaultRoute) {
         this.token = token;
         this.user = user;
         this.primaryRole = primaryRole;
@@ -31,8 +31,8 @@ public class LoginResponse {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public UserResponseDto getUser() { return user; }
-    public void setUser(UserResponseDto user) { this.user = user; }
+    public UserInfoDto getUser() { return user; }
+    public void setUser(UserInfoDto user) { this.user = user; }
 
     public String getPrimaryRole() { return primaryRole; }
     public void setPrimaryRole(String primaryRole) { this.primaryRole = primaryRole; }

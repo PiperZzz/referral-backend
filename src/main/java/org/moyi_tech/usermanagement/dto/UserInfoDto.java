@@ -4,7 +4,7 @@ import org.moyi_tech.usermanagement.entity.UserStatus;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-public class UserResponseDto {
+public class UserInfoDto {
     
     private Long id;
     private String email;
@@ -16,7 +16,7 @@ public class UserResponseDto {
     private LocalDateTime updatedAt;
 
     // 构造函数
-    public UserResponseDto() {}
+    public UserInfoDto() {}
 
     // Getters和Setters
     public Long getId() { return id; }

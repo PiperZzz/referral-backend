@@ -1,7 +1,7 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.dto.RegistrationRequest;
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.entity.Role;
 import org.moyi_tech.usermanagement.entity.RoleName;
 import org.moyi_tech.usermanagement.entity.User;
@@ -36,7 +36,7 @@ public class UserService {
     /**
      * 用户注册
      */
-    public UserResponseDto registerUser(RegistrationRequest registrationRequest) {
+    public UserInfoDto registerUser(RegistrationRequest registrationRequest) {
         // 检查邮箱是否已存在
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
             throw new RuntimeException("邮箱已被注册: " + registrationRequest.getEmail());
@@ -66,7 +66,7 @@ public class UserService {
     /**
      * 根据邮箱查找用户
      */
-    public Optional<UserResponseDto> findUserByEmail(String email) {
+    public Optional<UserInfoDto> findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(this::convertToResponseDto);
     }
@@ -74,7 +74,7 @@ public class UserService {
     /**
      * 获取所有普通用户（管理员功能）
      */
-    public List<UserResponseDto> getAllRegularUsers() {
+    public List<UserInfoDto> getAllRegularUsers() {
         return userRepository.findAllRegularUsers()
                 .stream()
                 .map(this::convertToResponseDto)
@@ -84,7 +84,7 @@ public class UserService {
     /**
      * 暂停用户（管理员功能）
      */
-    public UserResponseDto suspendUser(Long userId) {
+    public UserInfoDto suspendUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
         
@@ -139,7 +139,7 @@ public class UserService {
     /**
      * Get all users (for admin management)
      */
-    public List<UserResponseDto> getAllUsers() {
+    public List<UserInfoDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
                 .map(this::convertToResponseDto)
@@ -149,7 +149,7 @@ public class UserService {
     /**
      * Activate user (Admin function)
      */
-    public UserResponseDto activateUser(Long userId) {
+    public UserInfoDto activateUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
         
@@ -162,7 +162,7 @@ public class UserService {
     /**
      * Deactivate user (Admin function)
      */
-    public UserResponseDto deactivateUser(Long userId) {
+    public UserInfoDto deactivateUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
         
@@ -198,7 +198,7 @@ public class UserService {
     /**
      * Update WeChat information
      */
-    public UserResponseDto updateWechatInfo(String email, String wechatId, String referrerWechatId) {
+    public UserInfoDto updateWechatInfo(String email, String wechatId, String referrerWechatId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
@@ -212,8 +212,8 @@ public class UserService {
     /**
      * Convert User entity to UserResponseDto
      */
-    private UserResponseDto convertToResponseDto(User user) {
-        UserResponseDto dto = new UserResponseDto();
+    private UserInfoDto convertToResponseDto(User user) {
+        UserInfoDto dto = new UserInfoDto();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
         dto.setWechatId(user.getWechatId());

@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class AdminUserManagementController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MASTER')")
     public ResponseEntity<?> getAllUsers() {
         try {
-            List<UserResponseDto> users = userService.getAllUsers();
+            List<UserInfoDto> users = userService.getAllUsers();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -54,7 +54,7 @@ public class AdminUserManagementController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MASTER')")
     public ResponseEntity<?> activateUser(@PathVariable Long userId) {
         try {
-            UserResponseDto user = userService.activateUser(userId);
+            UserInfoDto user = userService.activateUser(userId);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -80,7 +80,7 @@ public class AdminUserManagementController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MASTER')")
     public ResponseEntity<?> deactivateUser(@PathVariable Long userId) {
         try {
-            UserResponseDto user = userService.deactivateUser(userId);
+            UserInfoDto user = userService.deactivateUser(userId);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

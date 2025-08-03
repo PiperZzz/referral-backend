@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
         try {
-            UserResponseDto user = userService.registerUser(registrationRequest);
+            UserInfoDto user = userService.registerUser(registrationRequest);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -80,7 +80,7 @@ public class AuthController {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             // 获取用户信息
-            UserResponseDto userInfo = userService.findUserByEmail(loginRequest.getEmail())
+            UserInfoDto userInfo = userService.findUserByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
             // 确定主要角色和默认路由
@@ -184,7 +184,7 @@ public class AuthController {
     public ResponseEntity<?> getAuthStatus(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             String email = authentication.getName();
-            UserResponseDto user = userService.findUserByEmail(email)
+            UserInfoDto user = userService.findUserByEmail(email)
                 .orElse(null);
 
             Map<String, Object> response = new HashMap<>();
@@ -259,7 +259,7 @@ public class AuthController {
                     tokenBlacklistService.blacklistToken(oldToken);
                     
                     // 获取用户信息
-                    UserResponseDto userInfo = userService.findUserByEmail(authentication.getName())
+                    UserInfoDto userInfo = userService.findUserByEmail(authentication.getName())
                             .orElseThrow(() -> new RuntimeException("用户不存在"));
 
                     LoginResponse loginResponse = new LoginResponse(newToken, userInfo);

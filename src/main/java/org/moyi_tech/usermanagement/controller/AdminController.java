@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.UserResponseDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         try {
-            List<UserResponseDto> users = userService.getAllRegularUsers();
+            List<UserInfoDto> users = userService.getAllRegularUsers();
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -45,7 +45,7 @@ public class AdminController {
     @PutMapping("/users/{userId}/activate")
     public ResponseEntity<?> activateUser(@PathVariable Long userId) {
         try {
-            UserResponseDto user = userService.activateUser(userId);
+            UserInfoDto user = userService.activateUser(userId);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -67,7 +67,7 @@ public class AdminController {
     @PutMapping("/users/{userId}/suspend")
     public ResponseEntity<?> suspendUser(@PathVariable Long userId) {
         try {
-            UserResponseDto user = userService.suspendUser(userId);
+            UserInfoDto user = userService.suspendUser(userId);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
