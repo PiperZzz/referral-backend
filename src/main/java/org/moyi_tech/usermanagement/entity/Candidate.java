@@ -55,7 +55,6 @@ public class Candidate {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Constructors
     public Candidate() {}
 
     public Candidate(String candidateName, String candidateWechat, User referredBy) {
@@ -64,7 +63,6 @@ public class Candidate {
         this.referredBy = referredBy;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

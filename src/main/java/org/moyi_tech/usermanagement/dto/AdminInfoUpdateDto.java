@@ -22,7 +22,6 @@ public class AdminInfoUpdateDto {
 
     public AdminInfoUpdateDto() {}
 
-    // Getters and Setters
     public String getAdminName() { return adminName; }
     public void setAdminName(String adminName) { this.adminName = adminName; }
 

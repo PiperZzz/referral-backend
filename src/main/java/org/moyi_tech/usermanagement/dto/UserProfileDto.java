@@ -2,15 +2,14 @@ package org.moyi_tech.usermanagement.dto;
 
 public class UserProfileDto {
     private Long id;
-    private String name;           // 用户名称 = email（只读）
-    private String email;          // 邮箱（只读）
-    private String wechatId;       // 微信号（可修改）
-    private Integer userLevel;     // 用户等级（只读）
-    private Long openCandidates;   // 开放候选人数量（只读）
+    private String name;
+    private String email;
+    private String wechatId;
+    private Integer userLevel;
+    private Long openCandidates;
 
     public UserProfileDto() {}
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

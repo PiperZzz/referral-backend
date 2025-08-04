@@ -18,7 +18,6 @@ public class Role {
     @Column
     private String description;
 
-    // 构造函数
     public Role() {}
 
     public Role(RoleName name) {
@@ -26,7 +25,6 @@ public class Role {
         this.description = name.getDescription();
     }
 
-    // Getters和Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

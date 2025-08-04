@@ -7,12 +7,12 @@ public class LoginResponse {
     private String type = "Bearer";
     private UserInfoDto user;
     private String primaryRole;    // "MASTER", "ADMIN", "USER"
-    private String defaultRoute;   // 默认路由
+    private String defaultRoute;
 
     public LoginResponse(String token, UserInfoDto user) {
         this.token = token;
         this.user = user;
-        // 如果没有提供角色信息，从用户DTO中推断
+        // Determine primary role and default route based on user roles
         this.primaryRole = RoleUtils.determinePrimaryRole(user.getRoles());
         this.defaultRoute = RoleUtils.getDefaultRouteForRole(this.primaryRole);
     }
@@ -24,7 +24,6 @@ public class LoginResponse {
         this.defaultRoute = defaultRoute;
     }
 
-    // Getters and Setters
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
 

@@ -8,7 +8,6 @@ public class UserProfileUpdateDto {
 
     public UserProfileUpdateDto() {}
 
-    // Getters and Setters
     public String getWechatId() { return wechatId; }
     public void setWechatId(String wechatId) { this.wechatId = wechatId; }
 

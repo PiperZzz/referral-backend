@@ -10,7 +10,6 @@ public class HelpInfoDto {
 
     public HelpInfoDto() {}
 
-    // Getters and Setters
     public String getSupportMessage() { return supportMessage; }
     public void setSupportMessage(String supportMessage) { this.supportMessage = supportMessage; }
 

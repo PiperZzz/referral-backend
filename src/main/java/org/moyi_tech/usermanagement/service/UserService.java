@@ -41,6 +41,7 @@ public class UserService {
         User user = new User();
         user.setEmail(registrationRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+        user.setUsername(registrationRequest.getUsername());
         user.setWechatId(registrationRequest.getWechatId());
         user.setReferrerWechatId(registrationRequest.getReferrerWechatId());
         user.setStatus(UserStatus.INACTIVE); // Default status is INACTIVE
@@ -121,6 +122,23 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return convertToResponseDto(savedUser);
     }
+
+    @Transactional
+    public UserInfoDto updateUsername(String email, String username) {
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+    if (username != null && !username.trim().isEmpty()) {
+        Optional<User> existingUser = userRepository.findByUsername(username);
+        if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
+            throw new RuntimeException("Username already exists: " + username);
+        }
+        user.setUsername(username.trim());
+    }
+
+    User savedUser = userRepository.save(user);
+    return convertToResponseDto(savedUser);
+}
 
     private UserInfoDto convertToResponseDto(User user) {
         return DtoUtils.convertToResponseDto(user);

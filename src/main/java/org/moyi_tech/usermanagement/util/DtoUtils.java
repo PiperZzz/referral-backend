@@ -17,6 +17,7 @@ public class DtoUtils {
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
         dto.setWechatId(user.getWechatId());
+        dto.setUsername(user.getUsername());
         dto.setReferrerWechatId(user.getReferrerWechatId());
         dto.setStatus(user.getStatus());
         dto.setCreatedAt(user.getCreatedAt());
