@@ -8,12 +8,11 @@ import org.moyi_tech.usermanagement.entity.Role;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.repository.RoleRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.moyi_tech.usermanagement.util.DtoUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -21,109 +20,75 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    /**
-     * 用户注册
-     */
+    @Transactional
     public UserInfoDto registerUser(RegistrationRequest registrationRequest) {
-        // 检查邮箱是否已存在
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-            throw new RuntimeException("邮箱已被注册: " + registrationRequest.getEmail());
+            throw new RuntimeException("Email has been registered: " + registrationRequest.getEmail());
         }
 
-        // 创建新用户
         User user = new User();
         user.setEmail(registrationRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
         user.setWechatId(registrationRequest.getWechatId());
         user.setReferrerWechatId(registrationRequest.getReferrerWechatId());
-        user.setStatus(UserStatus.INACTIVE); // 默认未激活状态
+        user.setStatus(UserStatus.INACTIVE); // Default status is INACTIVE
 
-        // 分配默认角色
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("默认用户角色不存在"));
+                .orElseThrow(() -> new RuntimeException("Default user role not found"));
         roles.add(userRole);
         user.setRoles(roles);
 
-        // 保存用户
         User savedUser = userRepository.save(user);
 
         return convertToResponseDto(savedUser);
     }
 
-    /**
-     * 根据邮箱查找用户
-     */
-    public Optional<UserInfoDto> findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(this::convertToResponseDto);
-    }
-
-    /**
-     * 获取所有普通用户（管理员功能）
-     */
-    public List<UserInfoDto> getAllRegularUsers() {
-        return userRepository.findAllRegularUsers()
+    public List<UserInfoDto> getAllUsers() {
+        return userRepository.findAll()
                 .stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 暂停用户（管理员功能）
-     */
-    public UserInfoDto suspendUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
-        
-        user.setStatus(UserStatus.INACTIVE);
-        User savedUser = userRepository.save(user);
-        
-        return convertToResponseDto(savedUser);
+    public Optional<UserInfoDto> findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::convertToResponseDto);
     }
 
-    /**
-     * 检查邮箱是否存在
-     */
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     } 
 
-    /**
-     * 获取用户的主要角色（用于登录响应）
-     */
     public String getUserPrimaryRole(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
-        // 按优先级确定主要角色：Master > Admin > User
+        // Master > Admin > User
         if (user.getRoles().stream().anyMatch(role -> role.getName() == RoleName.ROLE_MASTER)) {
-            return "MASTER";
+            return RoleName.ROLE_MASTER.name();
         } else if (user.getRoles().stream().anyMatch(role -> role.getName() == RoleName.ROLE_ADMIN)) {
-            return "ADMIN";
+            return RoleName.ROLE_ADMIN.name();
         } else {
-            return "USER";
+            return RoleName.ROLE_USER.name();
         }
     }
 
-    /**
-     * 检查用户是否具有指定角色
-     */
     public boolean userHasRole(String email, String roleName) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + email));
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
         
         RoleName targetRole;
         try {
@@ -136,57 +101,7 @@ public class UserService {
                 .anyMatch(role -> role.getName() == targetRole);
     }
 
-    /**
-     * Get all users (for admin management)
-     */
-    public List<UserInfoDto> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Activate user (Admin function)
-     */
-    public UserInfoDto activateUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-        
-        user.setStatus(UserStatus.ACTIVE);
-        User savedUser = userRepository.save(user);
-        
-        return convertToResponseDto(savedUser);
-    }
-
-    /**
-     * Deactivate user (Admin function)
-     */
-    public UserInfoDto deactivateUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-        
-        user.setStatus(UserStatus.INACTIVE);
-        User savedUser = userRepository.save(user);
-        
-        return convertToResponseDto(savedUser);
-    }
-
-    /**
-     * Get user candidates by user ID (for admin "Show Refers" functionality)
-     */
-    public List<Object> getUserCandidatesByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-        
-        // This method should be implemented in CandidateService
-        // For now, return empty list - this will be properly implemented when we integrate with CandidateService
-        return new ArrayList<>();
-    }
-
-    /**
-     * Reset password
-     */
+    @Transactional
     public void resetPassword(String email, String newPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
@@ -195,9 +110,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    /**
-     * Update WeChat information
-     */
+    @Transactional
     public UserInfoDto updateWechatInfo(String email, String wechatId, String referrerWechatId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
@@ -209,25 +122,7 @@ public class UserService {
         return convertToResponseDto(savedUser);
     }
 
-    /**
-     * Convert User entity to UserResponseDto
-     */
     private UserInfoDto convertToResponseDto(User user) {
-        UserInfoDto dto = new UserInfoDto();
-        dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
-        dto.setWechatId(user.getWechatId());
-        dto.setReferrerWechatId(user.getReferrerWechatId());
-        dto.setStatus(user.getStatus());
-        dto.setCreatedAt(user.getCreatedAt());
-        dto.setUpdatedAt(user.getUpdatedAt());
-        
-        // Convert role names to strings
-        Set<String> roleNames = user.getRoles().stream()
-                .map(role -> role.getName().name())
-                .collect(Collectors.toSet());
-        dto.setRoles(roleNames);
-        
-        return dto;
+        return DtoUtils.convertToResponseDto(user);
     }
 }

@@ -4,8 +4,8 @@ import org.moyi_tech.usermanagement.constant.CandidateStatus;
 import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateStatusUpdateDto;
 import org.moyi_tech.usermanagement.service.CandidateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,15 +16,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/candidates")
+@PreAuthorize("hasRole('ADMIN') or hasRole('MASTER')")
 @Validated
 public class AdminCandidateController {
 
-    @Autowired
-    private CandidateService candidateService;
+    private final CandidateService candidateService;
 
-    /**
-     * Get all candidates (Admin function)
-     */
+    public AdminCandidateController(CandidateService candidateService) {
+        this.candidateService = candidateService;
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllCandidates() {
         try {
@@ -46,9 +47,6 @@ public class AdminCandidateController {
         }
     }
 
-    /**
-     * Get candidates by status
-     */
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getCandidatesByStatus(@PathVariable CandidateStatus status) {
         try {
@@ -71,9 +69,6 @@ public class AdminCandidateController {
         }
     }
 
-    /**
-     * Update candidate status
-     */
     @PutMapping("/{candidateId}/status")
     public ResponseEntity<?> updateCandidateStatus(
             @PathVariable Long candidateId,

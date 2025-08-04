@@ -15,9 +15,6 @@ public class SessionController {
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
-    /**
-     * 获取会话配置信息
-     */
     @GetMapping("/config")
     public ResponseEntity<?> getSessionConfig() {
         Map<String, Object> response = new HashMap<>();
@@ -29,9 +26,6 @@ public class SessionController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 用户活动心跳（保持会话活跃）
-     */
     @PostMapping("/heartbeat")
     public ResponseEntity<?> heartbeat() {
         Map<String, Object> response = new HashMap<>();

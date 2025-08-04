@@ -1,10 +1,8 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.dto.PasswordResetRequest;
 import org.moyi_tech.usermanagement.dto.UserRoleUpdateDto;
 import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.service.MasterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +17,12 @@ import java.util.Map;
 @Validated
 public class MasterController {
 
-    @Autowired
-    private MasterService masterService;
+    private final MasterService masterService;
 
-    /**
-     * 获取所有用户及角色信息
-     */
+    public MasterController(MasterService masterService) {
+        this.masterService = masterService;
+    }
+
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsersWithRoles() {
         try {
@@ -46,9 +44,6 @@ public class MasterController {
         }
     }
 
-    /**
-     * 提升用户为管理员
-     */
     @PostMapping("/promote-admin")
     public ResponseEntity<?> promoteToAdmin(@Valid @RequestBody UserRoleUpdateDto updateDto) {
         try {
@@ -56,7 +51,7 @@ public class MasterController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "用户已成功提升为管理员");
+            response.put("message", "User has been successfully promoted to admin");
             response.put("user", user);
 
             return ResponseEntity.ok(response);
@@ -70,22 +65,19 @@ public class MasterController {
         }
     }
 
-    /**
-     * 降级管理员为普通用户
-     */
     @PostMapping("/demote-admin")
     public ResponseEntity<?> demoteFromAdmin(@RequestBody Map<String, String> request) {
         try {
             String adminEmail = request.get("email");
             if (adminEmail == null || adminEmail.trim().isEmpty()) {
-                throw new RuntimeException("邮箱不能为空");
+                throw new RuntimeException("Email is required for demotion");
             }
 
             UserInfoDto user = masterService.demoteFromAdmin(adminEmail);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "管理员已成功降级为普通用户");
+            response.put("message", "Admin has been successfully demoted to user");
             response.put("user", user);
 
             return ResponseEntity.ok(response);
@@ -99,9 +91,6 @@ public class MasterController {
         }
     }
 
-    /**
-     * 获取可降级的管理员列表
-     */
     @GetMapping("/demotable-admins")
     public ResponseEntity<?> getDemotableAdmins() {
         try {

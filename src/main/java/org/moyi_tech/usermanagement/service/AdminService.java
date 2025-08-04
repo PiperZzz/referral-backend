@@ -1,32 +1,37 @@
 package org.moyi_tech.usermanagement.service;
 
 import org.moyi_tech.usermanagement.constant.CandidateStatus;
+import org.moyi_tech.usermanagement.constant.RoleName;
 import org.moyi_tech.usermanagement.constant.UserStatus;
 import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
+import org.moyi_tech.usermanagement.dto.UserInfoDto;
+import org.moyi_tech.usermanagement.entity.AdminInfo;
+import org.moyi_tech.usermanagement.entity.Candidate;
 import org.moyi_tech.usermanagement.entity.User;
+import org.moyi_tech.usermanagement.repository.AdminInfoRepository;
 import org.moyi_tech.usermanagement.repository.CandidateRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.moyi_tech.usermanagement.util.DtoUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class AdminReferralManagementService {
+public class AdminService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final CandidateRepository candidateRepository;
+    private final AdminInfoRepository adminInfoRepository;
 
-    @Autowired
-    private CandidateRepository candidateRepository;
+    public AdminService(UserRepository userRepository, CandidateRepository candidateRepository, AdminInfoRepository adminInfoRepository) {
+        this.userRepository = userRepository;
+        this.candidateRepository = candidateRepository;
+        this.adminInfoRepository = adminInfoRepository;
+    }
 
-    /**
-     * Get referral management data for admin portal
-     * For Feature 2.2.1 - Referral Management table
-     */
     public Map<String, Object> getReferralManagementData() {
-        // Get all active users
         List<User> activeUsers = userRepository.findByStatus(UserStatus.ACTIVE);
         
         List<Map<String, Object>> referralData = new ArrayList<>();
@@ -34,7 +39,6 @@ public class AdminReferralManagementService {
         for (User user : activeUsers) {
             Map<String, Object> userReferralInfo = new HashMap<>();
             
-            // Basic user info
             userReferralInfo.put("userId", user.getId());
             userReferralInfo.put("referralName", user.getEmail().split("@")[0]); // Use email prefix as name
             userReferralInfo.put("email", user.getEmail());
@@ -94,10 +98,6 @@ public class AdminReferralManagementService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get admin portal statistics
-     * For Feature 2.2.1 - Total Open Referrals and Total Connections
-     */
     public Map<String, Object> getAdminPortalStats() {
         Map<String, Object> stats = new HashMap<>();
         
@@ -117,9 +117,6 @@ public class AdminReferralManagementService {
         return stats;
     }
 
-    /**
-     * Get user details for referral management
-     */
     public Map<String, Object> getUserDetails(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
@@ -156,9 +153,92 @@ public class AdminReferralManagementService {
         return userDetails;
     }
 
+    @Transactional
+    public UserInfoDto activateUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        
+        user.setStatus(UserStatus.ACTIVE);
+        User savedUser = userRepository.save(user);
+        
+        return convertToResponseDto(savedUser);
+    }
+
+    @Transactional
+    public UserInfoDto deactivateUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        
+        user.setStatus(UserStatus.INACTIVE);
+        User savedUser = userRepository.save(user);
+        
+        return convertToResponseDto(savedUser);
+    }
+
     /**
-     * Count users who have at least one open candidate
+     * Get user candidates by user ID (for admin "Show Refers" functionality)
      */
+    public List<Object> getUserCandidatesByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        // TODO implmenent Show Refers 
+        // This method should be implemented in CandidateService
+        // For now, return empty list - this will be properly implemented when we integrate with CandidateService
+        return new ArrayList<>();
+    }
+
+        public List<Map<String, String>> getAdminWeChatInfo() {
+        List<Map<String, String>> adminInfo = new ArrayList<>();
+        
+        // try to get from AdminInfo entities
+        List<AdminInfo> adminInfoList = adminInfoRepository.findAllActiveAdminsOrdered();
+        
+        if (!adminInfoList.isEmpty()) {
+            for (AdminInfo admin : adminInfoList) {
+                if (admin.getWechatId() != null && !admin.getWechatId().trim().isEmpty()) {
+                    Map<String, String> info = new HashMap<>();
+                    info.put("name", admin.getAdminName());
+                    info.put("wechatId", admin.getWechatId());
+                    info.put("email", admin.getEmail());
+                    info.put("department", admin.getDepartment());
+                    info.put("position", admin.getPosition());
+                    adminInfo.add(info);
+                }
+            }
+        }
+        
+        // If no AdminInfo found, fall back to User entities with ADMIN role
+        if (adminInfo.isEmpty()) {
+            List<User> adminUsers = userRepository.findByRoleName(RoleName.ROLE_ADMIN)
+                    .stream()
+                    .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+                    .filter(user -> user.getWechatId() != null && !user.getWechatId().trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            for (User admin : adminUsers) {
+                Map<String, String> info = new HashMap<>();
+                info.put("name", admin.getEmail().split("@")[0]); // Use email prefix as name
+                info.put("wechatId", admin.getWechatId());
+                info.put("email", admin.getEmail());
+                info.put("department", "System");
+                info.put("position", "Administrator");
+                adminInfo.add(info);
+            }
+        }
+
+        // If still no admins found, add default admin info
+        if (adminInfo.isEmpty()) {
+            Map<String, String> defaultAdmin = new HashMap<>();
+            defaultAdmin.put("name", "System Admin");
+            defaultAdmin.put("email", "admin@moyi-tech.org");
+            defaultAdmin.put("department", "Support");
+            defaultAdmin.put("position", "System Administrator");
+            adminInfo.add(defaultAdmin);
+        }
+
+        return adminInfo;
+    }
+
     private long getUsersWithOpenCandidatesCount() {
         List<CandidateStatus> openStatuses = Arrays.asList(
             CandidateStatus.APPROVED,
@@ -174,29 +254,11 @@ public class AdminReferralManagementService {
             .count();
     }
 
-    /**
-     * Convert Candidate to Admin-specific CandidateResponseDto
-     * Includes admin-specific permissions
-     */
-    private CandidateInfoDto convertToAdminCandidateResponseDto(org.moyi_tech.usermanagement.entity.Candidate candidate) {
-        CandidateInfoDto dto = new CandidateInfoDto();
-        dto.setId(candidate.getId());
-        dto.setCandidateName(candidate.getCandidateName());
-        dto.setCandidateWechat(candidate.getCandidateWechat());
-        dto.setStatus(candidate.getStatus());
-        dto.setStatusDescription(candidate.getStatus().getDescription());
-        dto.setReferredByEmail(candidate.getReferredBy().getEmail());
-        dto.setReferredByUserId(candidate.getReferredBy().getId());
-        dto.setAdminComments(candidate.getAdminComments());
-        dto.setHasResume(candidate.getResumeFile() != null);
-        dto.setResumeFilename(candidate.getResumeFilename());
-        dto.setCreatedAt(candidate.getCreatedAt());
-        dto.setUpdatedAt(candidate.getUpdatedAt());
+    private UserInfoDto convertToResponseDto(User user) {
+       return DtoUtils.convertToResponseDto(user);
+    }
 
-        // Admin permissions - can update status and add comments, but cannot edit basic info
-        dto.setCanEdit(false); // Admins cannot edit candidate name, wechat, etc.
-        dto.setCanDelete(true); // Admins can delete candidates
-        
-        return dto;
+    private CandidateInfoDto convertToAdminCandidateResponseDto(Candidate candidate) {
+        return DtoUtils.convertToAdminCandidateResponseDto(candidate);
     }
 }

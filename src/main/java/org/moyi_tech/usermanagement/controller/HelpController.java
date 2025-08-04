@@ -1,6 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.service.AdminInfoService;
+import org.moyi_tech.usermanagement.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,16 +14,12 @@ import java.util.Map;
 public class HelpController {
 
     @Autowired
-    private AdminInfoService adminInfoService;
+    private AdminService adminService;
 
-    /**
-     * Get admin WeChat information for Help overlay
-     * For Feature 1.6 - Help Overlay
-     */
     @GetMapping("/admins")
     public ResponseEntity<?> getAdminWeChatInfo() {
         try {
-            List<Map<String, String>> adminInfo = adminInfoService.getAdminWeChatInfo();
+            List<Map<String, String>> adminInfo = adminService.getAdminWeChatInfo();
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
