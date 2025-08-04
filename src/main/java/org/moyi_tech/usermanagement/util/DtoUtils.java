@@ -31,7 +31,7 @@ public class DtoUtils {
         return dto;
     }
 
-    public static CandidateInfoDto convertToAdminCandidateResponseDto(Candidate candidate) {
+    public static CandidateInfoDto convertToResponseDto(Candidate candidate) {
         CandidateInfoDto dto = new CandidateInfoDto();
         dto.setId(candidate.getId());
         dto.setCandidateName(candidate.getCandidateName());

@@ -259,6 +259,6 @@ public class AdminService {
     }
 
     private CandidateInfoDto convertToAdminCandidateResponseDto(Candidate candidate) {
-        return DtoUtils.convertToAdminCandidateResponseDto(candidate);
+        return DtoUtils.convertToResponseDto(candidate);
     }
 }
