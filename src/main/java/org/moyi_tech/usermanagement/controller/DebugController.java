@@ -1,10 +1,6 @@
 package org.moyi_tech.usermanagement.controller;
 
-import org.moyi_tech.usermanagement.constant.CandidateStatus;
-import org.moyi_tech.usermanagement.dto.CandidateCreateDto;
 import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
-import org.moyi_tech.usermanagement.dto.CandidateUpdateDto;
-import org.moyi_tech.usermanagement.dto.UserInfoDto;
 import org.moyi_tech.usermanagement.service.AdminService;
 import org.moyi_tech.usermanagement.service.CandidateService;
 import org.moyi_tech.usermanagement.service.TokenBlacklistService;
@@ -14,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +90,7 @@ public class DebugController {
             "{ \"email\": \"test@example.com\", \"password\": \"password123\" }"));
         endpoints.add(createEndpoint("POST", "/api/auth/logout", "User logout", "{}"));
         endpoints.add(createEndpoint("GET", "/api/auth/status", "Check auth status", ""));
-        endpoints.add(createEndpoint("POST", "/api/auth/forgot-password", "Forgot password", 
+        endpoints.add(createEndpoint("POST", "/api/auth/forget-password", "Forget password", 
             "{ \"email\": \"test@example.com\" }"));
         endpoints.add(createEndpoint("POST", "/api/auth/reset-password", "Reset password", 
             "{ \"token\": \"reset_token\", \"newPassword\": \"newpassword123\" }"));

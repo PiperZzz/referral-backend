@@ -112,11 +112,8 @@ public class AuthController {
         }
     }
 
-    /**
-     * 忘记密码 - 发送重置邮件
-     */
-    @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@Valid @RequestBody PasswordResetRequest request) {
+    @PostMapping("/forget-password")
+    public ResponseEntity<?> forgetPassword(@Valid @RequestBody PasswordResetRequest request) {
         try {
             if (!userService.existsByEmail(request.getEmail())) {
                 Map<String, Object> response = new HashMap<>();
