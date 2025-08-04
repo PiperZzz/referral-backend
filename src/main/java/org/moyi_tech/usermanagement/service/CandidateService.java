@@ -11,7 +11,6 @@ import org.moyi_tech.usermanagement.entity.Candidate;
 import org.moyi_tech.usermanagement.entity.User;
 import org.moyi_tech.usermanagement.repository.CandidateRepository;
 import org.moyi_tech.usermanagement.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,38 +25,30 @@ import java.util.stream.Collectors;
 @Transactional
 public class CandidateService {
 
-    @Autowired
-    private CandidateRepository candidateRepository;
+    private final CandidateRepository candidateRepository;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    @Autowired
-    private UserRepository userRepository;
+    public CandidateService(CandidateRepository candidateRepository, UserRepository userRepository, EmailService emailService) {
+        this.candidateRepository = candidateRepository;
+        this.userRepository = userRepository;
+        this.emailService = emailService;
+    }
 
-    @Autowired
-    private EmailService emailService;
-
-    /**
-     * 创建新候选人（带简历上传）
-     */
-    public CandidateInfoDto createCandidate(CandidateCreateDto createDto, 
-                                              MultipartFile resumeFile, 
-                                              String userEmail) {
-        // 检查候选人微信是否已存在
+    public CandidateInfoDto createCandidate(CandidateCreateDto createDto, MultipartFile resumeFile, String userEmail) {
         if (candidateRepository.existsByCandidateWechat(createDto.getCandidateWechat())) {
             throw new RuntimeException("候选人微信号已存在: " + createDto.getCandidateWechat());
         }
 
-        // 获取推荐用户
         User referredBy = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("用户不存在: " + userEmail));
 
-        // 创建候选人
         Candidate candidate = new Candidate();
         candidate.setCandidateName(createDto.getCandidateName());
         candidate.setCandidateWechat(createDto.getCandidateWechat());
         candidate.setReferredBy(referredBy);
         candidate.setStatus(CandidateStatus.SCREENING); // 默认状态为筛选中
 
-        // 处理简历文件
         if (resumeFile != null && !resumeFile.isEmpty()) {
             try {
                 candidate.setResumeFile(resumeFile.getBytes());

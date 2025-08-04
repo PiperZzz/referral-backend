@@ -5,7 +5,6 @@ import org.moyi_tech.usermanagement.dto.CandidateInfoDto;
 import org.moyi_tech.usermanagement.dto.CandidateUpdateDto;
 import org.moyi_tech.usermanagement.entity.Candidate;
 import org.moyi_tech.usermanagement.service.CandidateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,12 +25,12 @@ import java.util.Map;
 @Validated
 public class CandidateController {
 
-    @Autowired
     private CandidateService candidateService;
 
-    /**
-     * 创建新候选人（用户功能）
-     */
+    public CandidateController(CandidateService candidateService) {
+        this.candidateService = candidateService;
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createCandidate(
             @RequestParam("candidateName") String candidateName,
@@ -120,40 +119,6 @@ public class CandidateController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("candidate", candidate);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 更新候选人基本信息
-     */
-    @PutMapping("/{candidateId}")
-    public ResponseEntity<?> updateCandidate(
-            @PathVariable Long candidateId,
-            @RequestParam("candidateName") String candidateName,
-            @RequestParam("candidateWechat") String candidateWechat,
-            Principal principal) {
-        
-        try {
-            CandidateUpdateDto updateDto = new CandidateUpdateDto();
-            updateDto.setCandidateName(candidateName);
-            updateDto.setCandidateWechat(candidateWechat);
-
-            CandidateInfoDto candidate = candidateService.updateCandidate(
-                candidateId, updateDto, principal.getName());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Candidate updated successfully");
             response.put("candidate", candidate);
 
             return ResponseEntity.ok(response);
